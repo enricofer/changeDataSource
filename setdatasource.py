@@ -68,6 +68,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
 
     def changeDataSource(self,layer):
         self.layer = layer
+        self.setWindowTitle(layer.name())
         if layer.type() == QgsMapLayer.VectorLayer:
             self.populateComboBox(self.selectDatasourceCombo,self.vectorDSList.keys(),predef=self.layer.dataProvider().name())
         else:

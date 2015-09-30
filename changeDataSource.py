@@ -162,16 +162,16 @@ class changeDataSource:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/changeDataSource/icon.png'
+        icon_path = os.path.join(self.plugin_dir,"icon.png")
         self.add_action(
             icon_path,
             text=self.tr(u'changeDataSource'),
             callback=self.run,
             parent=self.iface.mainWindow())
-        self.changeDSActionVector = QAction( u"Change vector datasource", self.iface.legendInterface() )
-        self.changeDSActionRaster = QAction( u"Change raster datasource", self.iface.legendInterface() )
+        self.changeDSActionVector = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change vector datasource", self.iface.legendInterface() )
+        self.changeDSActionRaster = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change raster datasource", self.iface.legendInterface() )
         self.iface.legendInterface().addLegendLayerAction(self.changeDSActionVector,"","01", QgsMapLayer.VectorLayer,True)
-        self.iface.legendInterface().addLegendLayerAction(self.changeDSActionRaster,"","01", QgsMapLayer.RasterLayer,True)
+        self.iface.legendInterface().addLegendLayerAction(self.changeDSActionRaster,"","02", QgsMapLayer.RasterLayer,True)
         self.changeDSTool = setDataSource(self.iface)
         self.connectSignals()
 
@@ -238,7 +238,7 @@ class changeDataSource:
                 self.dlg.layerTable.setCellWidget(lastRow,2,self.getLabelWidget(layer.dataProvider().name(),2))
                 self.dlg.layerTable.setCellWidget(lastRow,3,self.getLabelWidget(layer.source(),3))
         self.dlg.layerTable.resizeColumnsToContents()
-        #self.dlg.layerTable.horizontalHeader().setResizeMode(QHeaderView.ResizeToContents)
+        self.dlg.layerTable.horizontalHeader().setStretchLastSection(True)
 
     def getLabelWidget(self,txt,column):
         edit = QLineEdit(parent = self.dlg.layerTable)
@@ -314,6 +314,8 @@ class changeDataSource:
         # show the dialog
         self.populateLayerTable()
         self.dlg.show()
+        self.dlg.raise_()
+        self.dlg.activateWindow()
         # Run the dialog event loop
         result = self.dlg.exec_()
         # See if OK was pressed

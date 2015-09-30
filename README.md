@@ -1,0 +1,1 @@
+the plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table accessible clicking on toolbar plugin icon.

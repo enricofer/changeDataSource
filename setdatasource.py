@@ -59,7 +59,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
             self.lineEdit.setPlainText(fileName)
 
     def selectDS(self,i):
-        print "changed combo",i
+        print "changed combo",i,self.selectDatasourceCombo.itemText(i)
         if self.selectDatasourceCombo.itemText(i) in self.browsable:
         #if self.selectDatasourceCombo.currentIndex()==0:
             self.openBrowser.setEnabled(True)
@@ -73,14 +73,16 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         else:
             self.populateComboBox(self.selectDatasourceCombo,self.rasterDSList.keys(),predef=self.layer.dataProvider().name())
         self.lineEdit.setPlainText(self.layer.source())
-        self.selectDS(0)
+        self.selectDS(self.selectDatasourceCombo.currentIndex())
         print self.layer.dataProvider().name()
         self.show()
+        self.raise_()
+        self.activateWindow()
 
     def cancelDialog(self):
         self.hide()
 
-    def recoverJoins(self, oldLayer, newLayer):
+    def exrecoverJoins(self, oldLayer, newLayer):
         for layer in self.iface.legendInterface().layers():
             if layer.type() == QgsMapLayer.VectorLayer:
                 for joinDef in layer.vectorJoins():
@@ -95,25 +97,17 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
 
     def applyDataSource(self,applyLayer,newDatasourceType,newDatasource):
         self.hide()
-        # read layer definition
-        XMLDocument = QDomDocument("style")
-        XMLMapLayers = QDomElement()
-        XMLMapLayers = XMLDocument.createElement("maplayers")
-        XMLMapLayer = QDomElement()
-        XMLMapLayer = XMLDocument.createElement("maplayer")
-        applyLayer.writeLayerXML(XMLMapLayer,XMLDocument)
-        self.iface.setActiveLayer(applyLayer)
         # new layer import
-        nlayer = QgsVectorLayer(newDatasource,"probe", newDatasourceType)
+        if applyLayer.type() == QgsMapLayer.VectorLayer:
+            nlayer = QgsVectorLayer(newDatasource,"probe", newDatasourceType)
+            if nlayer.geometryType() != applyLayer.geometryType():
+                self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
+                return None
+        else:
+            nlayer = QgsRasterLayer(newDatasource,"probe", newDatasourceType)
         if not nlayer.isValid():
             self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newDatasourceType+"|"+newDatasource, level=QgsMessageBar.CRITICAL, duration=4)
             return None
-        if nlayer == QgsMapLayer.VectorLayer and nlayer.geometryType() != self.layer.geometryType():
-            self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
-            return None
-        print applyLayer.dataProvider().name()
-        # modify DOM element with new layer reference
-        print nlayer.source()
         #print os.path.relpath(nlayer.source(),QgsProject.instance().readPath("./")).replace('\\','/')
         if newDatasourceType == "ogr" or newDatasourceType == "gdal" :
             try:
@@ -122,7 +116,6 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
                 newDatasource = nlayer.source()
         else:
             newDatasource = nlayer.source()
-        print newDatasource
         self.setDataSource(applyLayer,newDatasource,newDatasourceType)
         return True
 

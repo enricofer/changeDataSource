@@ -9,11 +9,11 @@
 [general]
 name=changeDataSource
 qgisMinimumVersion=2.6
-description=right click on layer tree to change single layer datasource of click on icon to change datasources globally
+description=Right click on layer tree to change single layer datasource of click on icon to change datasources globally
 version=1.0
 author=enrico ferreguti
 email=enricofer@gmail.com
-about= the plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table accessible clicking on toolbar plugin icon.
+about= The plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table by clicking on toolbar plugin icon.
 
 # End of mandatory metadata
 

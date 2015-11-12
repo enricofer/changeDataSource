@@ -65,7 +65,7 @@ class dataSourceBrowser(QtGui.QDialog, Ui_dataSourceBrowser):
         uri_list = QgsMimeDataUtils.decodeUriList(self.browserModel.mimeData([index]))
         try:
             #print uri_list[0].providerKey,uri_list[0].uri
-            self.result =  (uri_list[0].providerKey,uri_list[0].uri)
+            self.result =  (uri_list[0].layerType,uri_list[0].providerKey,uri_list[0].uri)
             self.close()
             self.acceptedFlag = True
         except:

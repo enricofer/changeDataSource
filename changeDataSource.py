@@ -29,6 +29,7 @@ import resources_rc
 # Import the code for the dialog
 from changeDataSource_dialog import changeDataSourceDialog,dataSourceBrowser
 from setdatasource import setDataSource
+from qgis.gui import QgsMessageBar
 import os.path
 
 
@@ -191,6 +192,12 @@ class changeDataSource:
         self.iface.newProjectCreated.connect(self.updateSession)
         QgsProject.instance().setBadLayerHandler(self.badLayersHandler)
         QgsProject.instance().writeProject.connect(self.backupUnhandledLayers)
+
+    def resetEmbeddedLayer(self):
+        root = QgsProject.instance().layerTreeRoot()
+        layerNode = root.findLayer(self.iface.legendInterface().currentLayer().id())
+        layerNode.removeCustomProperty("embedded")
+        layerNode.removeCustomProperty("embedded_project")
 
     def initHandleBadLayers(self):
         '''
@@ -395,16 +402,33 @@ class changeDataSource:
         return edit
 
     def browseDS(self,row):
-        newProvider,newDatasource = dataSourceBrowser.uri()
+        newType,newProvider,newDatasource = dataSourceBrowser.uri()
+        #check if databrowser return a incompatible layer type
+        layerId = self.dlg.layerTable.cellWidget(row,0).text()
+        rowLayer = QgsMapLayerRegistry.instance().mapLayer(layerId)
+        enumLayerTypes = ("vector","raster","plugin")
+        print enumLayerTypes[rowLayer.type()], newType
+        if enumLayerTypes[rowLayer.type()] != newType:
+            self.iface.messageBar().pushMessage("Error", "Layer type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
+            return None
         if newDatasource:
             self.dlg.layerTable.cellWidget(row,3).setText(newDatasource)
         if newProvider:
             self.dlg.layerTable.cellWidget(row,2).setText(newProvider)
 
     def browseAction(self,row):
+        print "BROWSE"
         cellType = self.dlg.layerTable.cellWidget(row,2)
         cellSource = self.dlg.layerTable.cellWidget(row,3)
         type,filename = self.dataBrowser.browse(cellType.text(),cellSource.text())
+        #check if databrowse return a incompatible layer type
+        layerId = self.dlg.layerTable.cellWidget(row,0).text()
+        rowLayer = QgsMapLayerRegistry.instance().mapLayer(layerID)
+        enumLayerTypes = ("vector","raster","plugin")
+        print layerTypes[rowLayer.type()], type
+        if layerTypes[rowLayer.type()] != type:
+            self.iface.messageBar().pushMessage("Error", "Layer type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
+            return None
         if type:
             if type != cellType.text():
                 cellType.setText(type)
@@ -475,12 +499,14 @@ class changeDataSource:
                 #        resultStyle = "QLineEdit{background: red;}"
                 #else:
                 rowLayer = QgsMapLayerRegistry.instance().mapLayer(layerID)
-                rowDStype = rowLayer.dataProvider().name()
-                rowDSstring = rowLayer.source()
-                if DSTypeCell.changed:
-                    rowDStype = DSTypeCell.text()
-                if DSStringCell.changed:
-                    rowDSstring = DSStringCell.text()
+                #rowDStype = rowLayer.dataProvider().name()
+                #rowDSstring = rowLayer.source()
+                #if DSTypeCell.changed:
+                #    rowDStype = DSTypeCell.text()
+                #if DSStringCell.changed:
+                #    rowDSstring = DSStringCell.text()
+                rowDStype = DSTypeCell.text()
+                rowDSstring = DSStringCell.text()
                 if self.changeDSTool.applyDataSource(rowLayer,rowDStype,rowDSstring):
                     resultStyle = "QLineEdit{background: green;}"
                 else:

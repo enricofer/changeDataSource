@@ -57,15 +57,18 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
 
     def openFileBrowser(self):
         #type,filename = self.parent.dataBrowser.browse(self.layer.dataProvider().name(),self.layer.source())
-        type,fileName = dataSourceBrowser.uri()
+        type,provider,fileName = dataSourceBrowser.uri()
+        if self.layer.type() != type:
+            self.iface.messageBar().pushMessage("Error", "Layer type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
+            return None
         if fileName:
             self.lineEdit.setPlainText(fileName)
-        if type:
+        if provider:
             allSources = [self.selectDatasourceCombo.itemText(i) for i in range(self.selectDatasourceCombo.count())]
             if type in allSources:
-                self.selectDatasourceCombo.setCurrentIndex(allSources.index(type))
+                self.selectDatasourceCombo.setCurrentIndex(allSources.index(provider))
             else:
-                self.selectDatasourceCombo.addItem(type)
+                self.selectDatasourceCombo.addItem(provider)
                 self.selectDatasourceCombo.setCurrentIndex(self.selectDatasourceCombo.count()-1)
 
     def selectDS(self,i):
@@ -126,6 +129,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         self.applyDataSource(self.layer,self.selectDatasourceCombo.currentText().lower().replace(' ',''),self.lineEdit.toPlainText())
 
     def applyDataSource(self,applyLayer,newDatasourceType,newDatasource):
+        print applyLayer.id(),newDatasourceType,newDatasource
         self.hide()
         # new layer import
         if applyLayer.type() == QgsMapLayer.VectorLayer:

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'Z:\dev\changeDataSource\changeDataSource_dialog_base.ui'
 #
-# Created: Wed Sep 30 13:00:02 2015
+# Created: Fri Nov 13 12:03:08 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_changeDataSourceDialogBase(object):
     def setupUi(self, changeDataSourceDialogBase):
         changeDataSourceDialogBase.setObjectName(_fromUtf8("changeDataSourceDialogBase"))
-        changeDataSourceDialogBase.resize(1027, 336)
+        changeDataSourceDialogBase.resize(1027, 461)
         self.verticalLayout = QtGui.QVBoxLayout(changeDataSourceDialogBase)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.layerTable = QtGui.QTableWidget(changeDataSourceDialogBase)
@@ -68,11 +68,17 @@ class Ui_changeDataSourceDialogBase(object):
         self.replaceButton.setObjectName(_fromUtf8("replaceButton"))
         self.horizontalLayout.addWidget(self.replaceButton)
         self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout_2 = QtGui.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
+        self.reconcileButton = QtGui.QPushButton(changeDataSourceDialogBase)
+        self.reconcileButton.setObjectName(_fromUtf8("reconcileButton"))
+        self.horizontalLayout_2.addWidget(self.reconcileButton)
         self.buttonBox = QtGui.QDialogButtonBox(changeDataSourceDialogBase)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Apply|QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Reset)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
-        self.verticalLayout.addWidget(self.buttonBox)
+        self.horizontalLayout_2.addWidget(self.buttonBox)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
 
         self.retranslateUi(changeDataSourceDialogBase)
         QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), changeDataSourceDialogBase.accept)
@@ -87,4 +93,5 @@ class Ui_changeDataSourceDialogBase(object):
         self.label_3.setText(_translate("changeDataSourceDialogBase", "New datasource type:", None))
         self.onlySelectedCheck.setText(_translate("changeDataSourceDialogBase", "Between selected rows", None))
         self.replaceButton.setText(_translate("changeDataSourceDialogBase", "Replace", None))
+        self.reconcileButton.setText(_translate("changeDataSourceDialogBase", "Reconcile unhandled", None))
 

@@ -70,7 +70,7 @@ class dataSourceBrowser(QtGui.QDialog, Ui_dataSourceBrowser):
             self.acceptedFlag = True
         except:
             #print "NO VALID URI"
-            self.result = (None,None)
+            self.result = (None,None,None)
 
     def acceptedAction(self):
         self.getUriFromBrowser(self.dataSourceTree.currentIndex())
@@ -89,4 +89,4 @@ class dataSourceBrowser(QtGui.QDialog, Ui_dataSourceBrowser):
         if dialog.acceptedFlag:
             return (dialog.result)
         else:
-            return (None,None)
+            return (None,None,None)

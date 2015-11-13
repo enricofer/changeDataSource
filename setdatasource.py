@@ -58,18 +58,19 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
     def openFileBrowser(self):
         #type,filename = self.parent.dataBrowser.browse(self.layer.dataProvider().name(),self.layer.source())
         type,provider,fileName = dataSourceBrowser.uri()
-        if self.layer.type() != type:
-            self.iface.messageBar().pushMessage("Error", "Layer type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
-            return None
-        if fileName:
-            self.lineEdit.setPlainText(fileName)
-        if provider:
-            allSources = [self.selectDatasourceCombo.itemText(i) for i in range(self.selectDatasourceCombo.count())]
-            if type in allSources:
-                self.selectDatasourceCombo.setCurrentIndex(allSources.index(provider))
-            else:
-                self.selectDatasourceCombo.addItem(provider)
-                self.selectDatasourceCombo.setCurrentIndex(self.selectDatasourceCombo.count()-1)
+        enumLayerTypes = ("vector","raster","plugin")
+        if enumLayerTypes[self.layer.type()] != type:
+            self.iface.messageBar().pushMessage("Error", "Layer type mismatch: %s/%s" % (enumLayerTypes[self.layer.type()],type), level=QgsMessageBar.CRITICAL, duration=4)
+        else:
+            if fileName:
+                self.lineEdit.setPlainText(fileName)
+            if provider:
+                allSources = [self.selectDatasourceCombo.itemText(i) for i in range(self.selectDatasourceCombo.count())]
+                if type in allSources:
+                    self.selectDatasourceCombo.setCurrentIndex(allSources.index(provider))
+                else:
+                    self.selectDatasourceCombo.addItem(provider)
+                    self.selectDatasourceCombo.setCurrentIndex(self.selectDatasourceCombo.count()-1)
 
     def selectDS(self,i):
         #print "changed combo",i,self.selectDatasourceCombo.itemText(i)
@@ -83,8 +84,8 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
     def changeDataSource(self,layer):
         self.layer = layer
         self.setWindowTitle(layer.name())
-        print self.parent.badLayersHandler.getUnhandledLayers()
-        print layer.id()
+        #print self.parent.badLayersHandler.getUnhandledLayers()
+        #print layer.id()
         #if layer is unhandled get unhandled parameters
         DSPalette = QPalette()
         if self.parent.badLayersHandler.getActualLayersIds() and self.layer.id() in self.parent.badLayersHandler.getActualLayersIds():
@@ -107,7 +108,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
             self.populateComboBox(self.selectDatasourceCombo,self.rasterDSList.keys(),predef = provider)
         self.lineEdit.setPlainText(source)
         self.selectDS(self.selectDatasourceCombo.currentIndex())
-        print source
+        #print source
         self.show()
         self.raise_()
         self.activateWindow()
@@ -196,7 +197,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
             originalGroup.setExpanded (True)
             #remove layer from unhandled layers
             self.parent.badLayersHandler.removeUnhandledLayer(self.parent.badLayersHandler.getIdFromActualId(layer.id()))
-            print self.parent.badLayersHandler.getActualLayersIds()
+            #print self.parent.badLayersHandler.getActualLayersIds()
 
         self.iface.actionDraw().trigger()
         self.iface.mapCanvas().refresh()

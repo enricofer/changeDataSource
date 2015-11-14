@@ -355,24 +355,18 @@ class changeDataSource:
         self.dlg.layerTable.setHorizontalHeaderItem(4,QTableWidgetItem(""))
         #self.dlg.layerTable.setHorizontalHeaderItem(5,QTableWidgetItem(""))
         #self.dlg.layerTable.setHorizontalHeaderItem(6,QTableWidgetItem(""))
+
+        layersPropLayerDef = "Point?crs=epsg:3857&field=layerid:string(200)&field=layername:string(200)&field=layertype:string(20)&field=geometrytype:string(20)&field=provider:string(20)&field=datasource:string(250)&field=authid:string(20)"
+        self.layersPropLayer = QgsVectorLayer(layersPropLayerDef,"layerTable","memory")
+        dummyFeatures = []
+
         self.dlg.layerTable.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
 
         self.dlg.layerTable.horizontalHeader().setClickable(False)
 
         self.dlg.layerTable.hideColumn(0)
+        self.dlg.layerTable.hideColumn(5)
         self.dlg.layerTable.hideColumn(6)
-        self.dlg.layerTable.hideColumn(6)
-        #first unhandled layers
-        #if self.badLayersHandler.unhandledLayers:
-        #    for key,data in self.badLayersHandler.unhandledLayers.iteritems():
-        #        lastRow = self.dlg.layerTable.rowCount()
-        #        self.dlg.layerTable.insertRow(lastRow)
-        #        self.dlg.layerTable.setCellWidget(lastRow,0,self.getLabelWidget(key,0))
-        #        self.dlg.layerTable.setCellWidget(lastRow,1,self.getLabelWidget(data["layername"],1,style = "QLineEdit{background: rgb(190,170,160);font: italic;}"))
-        #        self.dlg.layerTable.setCellWidget(lastRow,2,self.getLabelWidget(data["provider"],2,style = "QLineEdit{background: rgb(190,170,160);font: italic;}"))
-        #        self.dlg.layerTable.setCellWidget(lastRow,3,self.getLabelWidget("invalid datasource: "+data["datasource"],3,style = "QLineEdit{background: rgb(190,170,160);font: italic;}"))
-        #        self.dlg.layerTable.setCellWidget(lastRow,4,self.getButtonWidget(data["provider"],lastRow))
-
         lr = QgsMapLayerRegistry.instance()
         #self.dlg.layerTable.setRowCount(lr.count())
         if self.badLayersHandler.getUnhandledLayers():
@@ -383,6 +377,7 @@ class changeDataSource:
                 defaultLayerOrder.append(layer.id())
         #print defaultLayerOrder
         #for lid in lr.mapLayers():
+
         for lid in defaultLayerOrder:
             if lr.mapLayer( lid ):
                 layer = lr.mapLayer( lid )
@@ -408,12 +403,32 @@ class changeDataSource:
                 self.dlg.layerTable.setCellWidget(lastRow,2,self.getLabelWidget(provider,2,style = cellStyle))
                 self.dlg.layerTable.setCellWidget(lastRow,3,self.getLabelWidget(source,3,style = cellStyle))
                 self.dlg.layerTable.setCellWidget(lastRow,4,self.getButtonWidget(lastRow))
+
+                layerDummyFeature = QgsFeature(self.layersPropLayer.pendingFields())
+                if layer.type() == QgsMapLayer.VectorLayer:
+                    type = "vector"
+                    enumGeometryTypes =('Point','Line','Polygon','UnknownGeometry','NoGeometry')
+                    geometry = enumGeometryTypes[layer.geometryType()]
+                else:
+                    type = "raster"
+                    geometry = ""
+                dummyGeometry = QgsGeometry.fromPoint(self.iface.mapCanvas().center())
+                layerDummyFeature.setGeometry(dummyGeometry)
+                layerDummyFeature.setAttributes([layer.id(), layer.name(), type, geometry, provider, source, layer.crs().authid()])
+                dummyFeatures.append(layerDummyFeature)
                 #orderWidget = QTableWidgetItem()
                 #orderWidget.setData(Qt.EditRole,order)
                 #self.dlg.layerTable.setItem(lastRow,5,orderWidget)
                 #orderWidget.setData(Qt.EditRole,defaultLayerOrder[order])
                 #self.dlg.layerTable.setItem(lastRow,6,orderWidget)
         #self.dlg.layerTable.sortItems(6)
+        print dummyFeatures
+        self.layersPropLayer.dataProvider().addFeatures(dummyFeatures)
+        QgsMapLayerRegistry.instance().addMapLayer(self.layersPropLayer)
+        self.iface.legendInterface().setLayerVisible(self.layersPropLayer, False)
+        #dumNode = QgsProject.instance().layerTreeRoot().findLayer(layersPropLayer.id())
+        #dumNode.parent().removeChildNode(dumNode)
+        self.dlg.mFieldExpressionWidget.setLayer(self.layersPropLayer)
         self.dlg.layerTable.resizeColumnToContents(1)
         self.dlg.layerTable.horizontalHeader().setResizeMode(2,QHeaderView.ResizeToContents)
         self.dlg.layerTable.setColumnWidth(4,30)
@@ -498,9 +513,15 @@ class changeDataSource:
                 indexes.append(row)
                 self.replaceList.append(QgsMapLayerRegistry.instance().mapLayer(self.dlg.layerTable.cellWidget(row,0).text()))
         for row in indexes:
+            layerId = self.dlg.layerTable.cellWidget(row,0)
             cell = self.dlg.layerTable.cellWidget(row,3)
             orig = cell.text()
-            cell.setText(cell.text().replace(self.dlg.findEdit.text(),self.dlg.replaceEdit.text()))
+            if self.dlg.mFieldExpressionWidget.isValidExpression():
+                exp = QgsExpression(self.dlg.mFieldExpressionWidget.currentText())
+                exp.prepare(self.layersPropLayer.pendingFields())
+                cell.setText(exp.evaluate(self.layersPropLayer.getFeatures(QgsFeatureRequest(row+1)).next()))
+            else:
+                cell.setText(cell.text().replace(self.dlg.findEdit.text(),self.dlg.replaceEdit.text()))
             if self.dlg.datasourceCombo.currentText() != "":
                 self.dlg.layerTable.cellWidget(row,2).setText(self.dlg.datasourceCombo.currentText())
 
@@ -535,6 +556,7 @@ class changeDataSource:
 
 
     def buttonBoxHub(self,button):
+        QgsMapLayerRegistry.instance().removeMapLayer(self.layersPropLayer.id())
         if button.text() == "Reset":
             self.populateLayerTable()
         elif button.text() == "Apply":

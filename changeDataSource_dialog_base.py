@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Z:\dev\changeDataSource\changeDataSource_dialog_base.ui'
+# Form implementation generated from reading ui file 'C:\Users\DEMO\Dropbox\dev\changeDataSource\changeDataSource_dialog_base.ui'
 #
-# Created: Fri Nov 13 12:03:08 2015
-#      by: PyQt4 UI code generator 4.11.3
+# Created: Sat Nov 14 15:11:22 2015
+#      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -47,14 +47,22 @@ class Ui_changeDataSourceDialogBase(object):
         self.label.setObjectName(_fromUtf8("label"))
         self.horizontalLayout.addWidget(self.label)
         self.findEdit = QtGui.QLineEdit(changeDataSourceDialogBase)
+        self.findEdit.setMaximumSize(QtCore.QSize(100, 16777215))
         self.findEdit.setObjectName(_fromUtf8("findEdit"))
         self.horizontalLayout.addWidget(self.findEdit)
         self.label_2 = QtGui.QLabel(changeDataSourceDialogBase)
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.horizontalLayout.addWidget(self.label_2)
         self.replaceEdit = QtGui.QLineEdit(changeDataSourceDialogBase)
+        self.replaceEdit.setMaximumSize(QtCore.QSize(100, 16777215))
         self.replaceEdit.setObjectName(_fromUtf8("replaceEdit"))
         self.horizontalLayout.addWidget(self.replaceEdit)
+        self.label_4 = QtGui.QLabel(changeDataSourceDialogBase)
+        self.label_4.setObjectName(_fromUtf8("label_4"))
+        self.horizontalLayout.addWidget(self.label_4)
+        self.mFieldExpressionWidget = QgsFieldExpressionWidget(changeDataSourceDialogBase)
+        self.mFieldExpressionWidget.setObjectName(_fromUtf8("mFieldExpressionWidget"))
+        self.horizontalLayout.addWidget(self.mFieldExpressionWidget)
         self.label_3 = QtGui.QLabel(changeDataSourceDialogBase)
         self.label_3.setObjectName(_fromUtf8("label_3"))
         self.horizontalLayout.addWidget(self.label_3)
@@ -90,8 +98,10 @@ class Ui_changeDataSourceDialogBase(object):
         self.layerTable.setSortingEnabled(True)
         self.label.setText(_translate("changeDataSourceDialogBase", "Find:", None))
         self.label_2.setText(_translate("changeDataSourceDialogBase", "Replace:", None))
+        self.label_4.setText(_translate("changeDataSourceDialogBase", "expression", None))
         self.label_3.setText(_translate("changeDataSourceDialogBase", "New datasource type:", None))
         self.onlySelectedCheck.setText(_translate("changeDataSourceDialogBase", "Between selected rows", None))
         self.replaceButton.setText(_translate("changeDataSourceDialogBase", "Replace", None))
         self.reconcileButton.setText(_translate("changeDataSourceDialogBase", "Reconcile unhandled", None))
 
+from qgis.gui import QgsFieldExpressionWidget

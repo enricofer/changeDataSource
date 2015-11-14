@@ -52,7 +52,14 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="findEdit"/>
+      <widget class="QLineEdit" name="findEdit">
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_2">
@@ -62,7 +69,24 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="replaceEdit"/>
+      <widget class="QLineEdit" name="replaceEdit">
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>expression</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QgsFieldExpressionWidget" name="mFieldExpressionWidget"/>
      </item>
      <item>
       <widget class="QLabel" name="label_3">
@@ -113,6 +137,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsFieldExpressionWidget</class>
+   <extends>QWidget</extends>
+   <header>qgsfieldexpressionwidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

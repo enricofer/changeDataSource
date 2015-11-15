@@ -135,13 +135,13 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         # new layer import
         if applyLayer.type() == QgsMapLayer.VectorLayer:
             nlayer = QgsVectorLayer(newDatasource,"probe", newDatasourceType)
-            if nlayer.geometryType() != applyLayer.geometryType():
-                self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
-                return None
         else:
             nlayer = QgsRasterLayer(newDatasource,"probe", newDatasourceType)
         if not nlayer.isValid():
             self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newDatasourceType+"|"+newDatasource, level=QgsMessageBar.CRITICAL, duration=4)
+            return None
+        if applyLayer.type() == QgsMapLayer.VectorLayer and nlayer.geometryType() != applyLayer.geometryType():
+            self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
             return None
         #print os.path.relpath(nlayer.source(),QgsProject.instance().readPath("./")).replace('\\','/')
         if newDatasourceType == "ogr" or newDatasourceType == "gdal" :

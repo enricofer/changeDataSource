@@ -194,11 +194,10 @@ class changeDataSource:
         QgsProject.instance().setBadLayerHandler(self.badLayersHandler)
         QgsProject.instance().writeProject.connect(self.backupUnhandledLayers)
 
-    def resetEmbeddedLayer(self):
+    def setEmbeddedLayer(self,layer):
         root = QgsProject.instance().layerTreeRoot()
-        layerNode = root.findLayer(self.iface.legendInterface().currentLayer().id())
-        layerNode.removeCustomProperty("embedded")
-        layerNode.removeCustomProperty("embedded_project")
+        layerNode = root.findLayer(layer.id())
+        layerNode.setCustomProperty("embedded","")
 
     def initHandleBadLayers(self):
         '''
@@ -240,10 +239,7 @@ class changeDataSource:
                 assign original style to unhandled layers
                 '''
                 XMLDocument = QDomDocument("style")
-                XMLDocumentControl = QDomDocument("style")
-                XMLMapLayers = QDomElement()
                 XMLMapLayers = XMLDocument.createElement("maplayers")
-                XMLMapLayer = QDomElement()
                 XMLMapLayer = XMLDocument.createElement("maplayer")
                 unhandledLayer.writeLayerXML(XMLMapLayer,XMLDocument)
                 unhandledRendererDom = XMLMapLayer.namedItem("renderer-v2")
@@ -368,21 +364,8 @@ class changeDataSource:
         self.dlg.layerTable.hideColumn(5)
         self.dlg.layerTable.hideColumn(6)
         lr = QgsMapLayerRegistry.instance()
-        #self.dlg.layerTable.setRowCount(lr.count())
-        if self.badLayersHandler.getUnhandledLayers():
-            defaultLayerOrder = self.badLayersHandler.originalOrder
-        else:
-            defaultLayerOrder = []
-            for layer in self.iface.legendInterface().layers():
-                defaultLayerOrder.append(layer.id())
-        #print defaultLayerOrder
-        #for lid in lr.mapLayers():
 
-        for lid in defaultLayerOrder:
-            if lr.mapLayer( lid ):
-                layer = lr.mapLayer( lid )
-            else:
-                layer = self.badLayersHandler.getUnhandledLayerFromBadId(lid)
+        for layer in self.iface.legendInterface().layers():
             if layer.type() == QgsMapLayer.VectorLayer or layer.type() == QgsMapLayer.RasterLayer:
                 lastRow = self.dlg.layerTable.rowCount()
                 self.dlg.layerTable.insertRow(lastRow)
@@ -392,11 +375,9 @@ class changeDataSource:
                     source = self.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["datasource"]
                     source = QgsProject.instance().readPath(source)
                     cellStyle = "QLineEdit{background: rgb(190,170,160);font: italic;}"
-                    order = self.badLayersHandler.getUnhandledLayersOrder(layer.id())
                 else:
                     provider = layer.dataProvider().name()
                     source = layer.source()
-                    order = defaultLayerOrder.index(layer.id())
                     cellStyle = ""
                 self.dlg.layerTable.setCellWidget(lastRow,0,self.getLabelWidget(layer.id(),0,style = cellStyle))
                 self.dlg.layerTable.setCellWidget(lastRow,1,self.getLabelWidget(layer.name(),1,style = cellStyle))
@@ -422,7 +403,6 @@ class changeDataSource:
                 #orderWidget.setData(Qt.EditRole,defaultLayerOrder[order])
                 #self.dlg.layerTable.setItem(lastRow,6,orderWidget)
         #self.dlg.layerTable.sortItems(6)
-        print dummyFeatures
         self.layersPropLayer.dataProvider().addFeatures(dummyFeatures)
         QgsMapLayerRegistry.instance().addMapLayer(self.layersPropLayer)
         self.iface.legendInterface().setLayerVisible(self.layersPropLayer, False)
@@ -638,7 +618,7 @@ class myBadLayerHandler(QgsProjectBadLayerHandler):
 
     def removeUnhandledLayer(self,removeKey):
         if self.getUnhandledLayers() and removeKey in self.getUnhandledLayers():
-            self.unhandledLayers.pop(removeKey,None)
+            del self.unhandledLayers[removeKey]
 
     def getUnhandledLayers(self):
         if self.badSession == self.parent.session:
@@ -678,6 +658,18 @@ class myBadLayerHandler(QgsProjectBadLayerHandler):
             return self.getUnhandledLayers()[id]
         else:
             None
+
+    def buildOriginalOrder(self):
+        self.originalOrder = []
+        legendElements = projectDom.elementsByTagName("legendlayer")
+        for legendItem in range(0,legendElements.count()):
+            legendLayerId = legendElements.item(legendItem).firstChild().firstChild().attributes().namedItem("layerid").nodeValue()
+            if legendLayerId in self.unhandledLayers:
+                id = self.unhandledLayers[legendLayerId]["tempid"]
+            else:
+                id = legendLayerId
+            self.originalOrder.append(id)
+
 
     def handleBadLayers(self,layers,projectDom):
         self.badLayers = layers

@@ -130,7 +130,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         self.applyDataSource(self.layer,self.selectDatasourceCombo.currentText().lower().replace(' ',''),self.lineEdit.toPlainText())
 
     def applyDataSource(self,applyLayer,newDatasourceType,newDatasource):
-        print applyLayer.id(),newDatasourceType,newDatasource
+        #print applyLayer.id(),newDatasourceType,newDatasource
         self.hide()
         # new layer import
         if applyLayer.type() == QgsMapLayer.VectorLayer:

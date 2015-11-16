@@ -30,7 +30,6 @@ from changeDataSource_dialog import dataSourceBrowser
 
 from qgis.gui import QgsManageConnectionsDialog, QgsMessageBar
 import os.path
-# create the dialog for zoom to point
 
 
 class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
@@ -40,23 +39,19 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         self.parent = parent
         self.iface = parent.iface
         self.canvas = self.iface.mapCanvas()
-        # Set up the user interface from Designer.
-        # After setupUI you can access any designer object by doing
-        # self.<objectname>, and you can use autoconnect slots - see
-        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.buttonBox.accepted.connect(self.changeDataSourceAction)
         self.buttonBox.rejected.connect(self.cancelDialog)
         self.selectDatasourceCombo.activated.connect(self.selectDS)
-        #self.selectDatasourceCombo.hide()
         self.openBrowser.clicked.connect(self.openFileBrowser)
         self.rasterDSList = {"wms":"Web Map Service (WMS)","gdal":"Raster images (GDAL)"}
         self.vectorDSList = {"ogr":"Vector layers (OGR)","delimitedtext": "Delimited Text", "gpx":" GPS eXchange Format", "postgres": "Postgis database layer","spatialite": "Spatialite database layer","oracle": "Oracle spatial database layer","mysql": "Mysql spatial database layer"}
         self.browsable=("ogr","gdal")
 
     def openFileBrowser(self):
-        #type,filename = self.parent.dataBrowser.browse(self.layer.dataProvider().name(),self.layer.source())
+        '''
+        method used to open datasource browser dialog to get new provider/uri for the single layer
+        '''
         type,provider,fileName = dataSourceBrowser.uri()
         enumLayerTypes = ("vector","raster","plugin")
         if enumLayerTypes[self.layer.type()] != type:
@@ -73,32 +68,28 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
                     self.selectDatasourceCombo.setCurrentIndex(self.selectDatasourceCombo.count()-1)
 
     def selectDS(self,i):
-        #print "changed combo",i,self.selectDatasourceCombo.itemText(i)
-        #if self.selectDatasourceCombo.itemText(i) in self.browsable:
-        #if self.selectDatasourceCombo.currentIndex()==0:
-        #    self.openBrowser.setEnabled(True)
-        #else:
-        #    self.openBrowser.setDisabled(True)
+        '''
+        method to catch datasource combo edits. No longer used. Stay here for future uses.
+        '''
         pass
 
-    def changeDataSource(self,layer):
+    def openDataSourceDialog(self,layer):
+        '''
+        method to prep and show single datasource edit dialog
+        '''
         self.layer = layer
         self.setWindowTitle(layer.name())
-        #print self.parent.badLayersHandler.getUnhandledLayers()
-        #print layer.id()
         #if layer is unhandled get unhandled parameters
-        DSPalette = QPalette()
         if self.parent.badLayersHandler.getActualLayersIds() and self.layer.id() in self.parent.badLayersHandler.getActualLayersIds():
 
             provider = self.parent.badLayersHandler.getUnhandledLayerFromActualId(self.layer.id())["provider"]
             source = self.parent.badLayersHandler.getUnhandledLayerFromActualId(self.layer.id())["datasource"]
-            DSPalette.setColor(QPalette.Text,QColor("#FF0000"))
+            self.label.setText("unhandled URI:")
         else:
             provider = self.layer.dataProvider().name()
             source = self.layer.source()
-            DSPalette.setColor(QPalette.Text,QColor("#FFFFFF"))
+            self.label.setText("URI:")
 
-        self.lineEdit.setPalette(DSPalette)
         if provider == "ogr" or provider == "gdal":
             source = QgsProject.instance().readPath(source)
 
@@ -107,16 +98,22 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         else:
             self.populateComboBox(self.selectDatasourceCombo,self.rasterDSList.keys(),predef = provider)
         self.lineEdit.setPlainText(source)
-        self.selectDS(self.selectDatasourceCombo.currentIndex())
+        #self.selectDS(self.selectDatasourceCombo.currentIndex())
         #print source
         self.show()
         self.raise_()
         self.activateWindow()
 
     def cancelDialog(self):
+        '''
+        landing method clicking cancel in button box
+        '''
         self.hide()
 
     def exrecoverJoins(self, oldLayer, newLayer):
+        '''
+        convenience method to rebuild joins if lost
+        '''
         for layer in self.iface.legendInterface().layers():
             if layer.type() == QgsMapLayer.VectorLayer:
                 for joinDef in layer.vectorJoins():
@@ -127,49 +124,55 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
                         layer.addJoin(newJoinDef)
 
     def changeDataSourceAction(self):
+        '''
+        landing method clicking apply in button box
+        '''
         self.applyDataSource(self.layer,self.selectDatasourceCombo.currentText().lower().replace(' ',''),self.lineEdit.toPlainText())
 
-    def applyDataSource(self,applyLayer,newDatasourceType,newDatasource):
-        #print applyLayer.id(),newDatasourceType,newDatasource
+    def applyDataSource(self,applyLayer,newProvider,newDatasource):
+        '''
+        method to verify applying datasource/provider before definitive change to avoid qgis crashes
+        '''
         self.hide()
         # new layer import
+        print "START_PROBE", newProvider, newDatasource
         if applyLayer.type() == QgsMapLayer.VectorLayer:
-            nlayer = QgsVectorLayer(newDatasource,"probe", newDatasourceType)
+            probeLayer = QgsVectorLayer(newDatasource,"probe", newProvider)
         else:
-            nlayer = QgsRasterLayer(newDatasource,"probe", newDatasourceType)
-        if not nlayer.isValid():
-            self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newDatasourceType+"|"+newDatasource, level=QgsMessageBar.CRITICAL, duration=4)
+            probeLayer = QgsRasterLayer(newDatasource,"probe", newProvider)
+        if not probeLayer.isValid():
+            self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=QgsMessageBar.CRITICAL, duration=4)
             return None
-        if applyLayer.type() == QgsMapLayer.VectorLayer and nlayer.geometryType() != applyLayer.geometryType():
+        if applyLayer.type() == QgsMapLayer.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
             self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
             return None
-        #print os.path.relpath(nlayer.source(),QgsProject.instance().readPath("./")).replace('\\','/')
-        if newDatasourceType == "ogr" or newDatasourceType == "gdal" :
+        #if URI is a local path transform it to absolute path
+        if newProvider == "ogr" or newProvider == "gdal" :
             try:
-                newDatasource = os.path.relpath(nlayer.source(),QgsProject.instance().readPath("./")).replace('\\','/')
+                newDatasource = os.path.relpath(probeLayer.source(),QgsProject.instance().readPath("./")).replace('\\','/')
             except:
-                newDatasource = nlayer.source()
+                newDatasource = probeLayer.source()
         else:
-            newDatasource = nlayer.source()
-        self.setDataSource(applyLayer,newDatasource,newDatasourceType)
+            newDatasource = probeLayer.source()
+        print "END_PROBE"
+        if applyLayer.type() == QgsMapLayer.VectorLayer:
+            applyLayer.setDataSource(newDatasource,applyLayer.name(),newProvider)
+        else:
+            self.setDataSource(applyLayer, newProvider, newDatasource)
         return True
 
-    def setDataSource(self,layer,newUri,newDatasourceType):
+    def setDataSource(self, layer, newProvider, newDatasource):
         '''
-        Method to apply a new datasource to a vector Layer
+        Method to write the new datasource to a raster Layer
         '''
-        #newDS, newUri = self.splitSource(newSourceUri)
-        #newDatasourceType = newDS or layer.dataProvider().name()
         # read layer definition
         XMLDocument = QDomDocument("style")
-        XMLMapLayers = QDomElement()
         XMLMapLayers = XMLDocument.createElement("maplayers")
-        XMLMapLayer = QDomElement()
         XMLMapLayer = XMLDocument.createElement("maplayer")
         layer.writeLayerXML(XMLMapLayer,XMLDocument)
         # apply layer definition
-        XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newUri)
-        XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newDatasourceType)
+        XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newDatasource)
+        XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newProvider)
         if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
             #if layer is unhandled, rendered dom definition is replaced with the old one
             unhandledDom = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["layerDom"]
@@ -190,21 +193,22 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
                     originalGroup = QgsProject.instance().layerTreeRoot()
             else:
                 originalGroup = QgsProject.instance().layerTreeRoot()
-            #moving the layer
+            #moving the layer to the original location
             layerMoving = QgsProject.instance().layerTreeRoot().findLayer(layer.id())
             originalGroup.insertChildNode(0,layerMoving.clone())
             layerMoving.parent().removeChildNode(layerMoving)
             originalGroup.setExpanded (True)
             #remove layer from unhandled layers
             self.parent.badLayersHandler.removeUnhandledLayer(self.parent.badLayersHandler.getIdFromActualId(layer.id()))
-            #print self.parent.badLayersHandler.getActualLayersIds()
 
         self.iface.actionDraw().trigger()
         self.iface.mapCanvas().refresh()
         self.iface.legendInterface().refreshLayerSymbology(layer)
 
     def populateComboBox(self,combo,list,dataPayload = None,predef = None,sort = None):
-        #procedure to fill specified combobox with provided list
+        '''
+        procedure to fill specified combobox with provided list
+        '''
         combo.blockSignals (True)
         combo.clear()
         model=QStandardItemModel(combo)

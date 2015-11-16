@@ -55,6 +55,7 @@ class dataSourceBrowser(QtGui.QDialog, Ui_dataSourceBrowser):
         self.browserModel = QgsBrowserModel()
         self.dataSourceTree.setModel(self.browserModel)
         self.dataSourceTree.doubleClicked.connect(self.getUriFromBrowser)
+        self.dataSourceTree.header().hide()
         self.hide()
         self.buttonBox.accepted.connect(self.acceptedAction)
         self.buttonBox.rejected.connect(self.rejectedAction)
@@ -82,8 +83,9 @@ class dataSourceBrowser(QtGui.QDialog, Ui_dataSourceBrowser):
         self.acceptedFlag = None
 
     @staticmethod
-    def uri():
+    def uri(title=""):
         dialog = dataSourceBrowser()
+        dialog.setWindowTitle(title)
         result = dialog.exec_()
         dialog.show()
         if dialog.acceptedFlag:

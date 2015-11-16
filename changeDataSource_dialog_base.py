@@ -104,4 +104,5 @@ class Ui_changeDataSourceDialogBase(object):
         self.replaceButton.setText(_translate("changeDataSourceDialogBase", "Replace", None))
         self.reconcileButton.setText(_translate("changeDataSourceDialogBase", "Reconcile unhandled", None))
 
+
 from qgis.gui import QgsFieldExpressionWidget

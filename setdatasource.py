@@ -54,7 +54,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         '''
         type,provider,fileName = dataSourceBrowser.uri()
         enumLayerTypes = ("vector","raster","plugin")
-        if enumLayerTypes[self.layer.type()] != type:
+        if type and enumLayerTypes[self.layer.type()] != type:
             self.iface.messageBar().pushMessage("Error", "Layer type mismatch: %s/%s" % (enumLayerTypes[self.layer.type()],type), level=QgsMessageBar.CRITICAL, duration=4)
         else:
             if fileName:
@@ -135,7 +135,6 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         '''
         self.hide()
         # new layer import
-        print "START_PROBE", newProvider, newDatasource
         if applyLayer.type() == QgsMapLayer.VectorLayer:
             probeLayer = QgsVectorLayer(newDatasource,"probe", newProvider)
         else:
@@ -147,43 +146,49 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
             self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
             return None
         #if URI is a local path transform it to absolute path
-        if newProvider == "ogr" or newProvider == "gdal" :
-            try:
-                newDatasource = os.path.relpath(probeLayer.source(),QgsProject.instance().readPath("./")).replace('\\','/')
-            except:
-                newDatasource = probeLayer.source()
-        else:
-            newDatasource = probeLayer.source()
-        print "END_PROBE"
-        if applyLayer.type() == QgsMapLayer.VectorLayer:
-            applyLayer.setDataSource(newDatasource,applyLayer.name(),newProvider)
-        else:
-            self.setDataSource(applyLayer, newProvider, newDatasource)
+        #if newProvider == "ogr" or newProvider == "gdal" :
+        #    try:
+        #        newDatasource = os.path.relpath(probeLayer.source(),QgsProject.instance().readPath("./")).replace('\\','/')
+        #    except:
+        #        newDatasource = probeLayer.source()
+        #else:
+        #
+        newDatasource = probeLayer.source()
+        self.setDataSource(applyLayer, newProvider, newDatasource)
         return True
 
     def setDataSource(self, layer, newProvider, newDatasource):
         '''
         Method to write the new datasource to a raster Layer
         '''
+        if "setDataSource" in dir(layer):
+            qgisVersionOk = True
+        else:
+            qgisVersionOk = False
         # read layer definition
-        XMLDocument = QDomDocument("style")
-        XMLMapLayers = XMLDocument.createElement("maplayers")
-        XMLMapLayer = XMLDocument.createElement("maplayer")
-        layer.writeLayerXML(XMLMapLayer,XMLDocument)
-        # apply layer definition
-        XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newDatasource)
-        XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newProvider)
-        if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
-            #if layer is unhandled, rendered dom definition is replaced with the old one
-            unhandledDom = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["layerDom"]
-            unhandledRenderer = unhandledDom.namedItem("renderer-v2").cloneNode()
-            if XMLMapLayer.replaceChild(unhandledRenderer,XMLMapLayer.namedItem("renderer-v2")).isNull():
-                print "unhandled layer invalid renderer"
+        print qgisVersionOk
+        if qgisVersionOk and layer.type() == QgsMapLayer.VectorLayer:
+            # try to use ad-hoc method if possible
+            layer.setDataSource(newDatasource,layer.name(),newProvider)
+        else:
+            XMLDocument = QDomDocument("style")
+            XMLMapLayers = XMLDocument.createElement("maplayers")
+            XMLMapLayer = XMLDocument.createElement("maplayer")
+            layer.writeLayerXML(XMLMapLayer,XMLDocument)
+            # apply layer definition
+            XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newDatasource)
+            XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newProvider)
+            if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
+                #if layer is unhandled, rendered dom definition is replaced with the old one
+                unhandledDom = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["layerDom"]
+                unhandledRenderer = unhandledDom.namedItem("renderer-v2").cloneNode()
+                if XMLMapLayer.replaceChild(unhandledRenderer,XMLMapLayer.namedItem("renderer-v2")).isNull():
+                    print "unhandled layer invalid renderer"
+            XMLMapLayers.appendChild(XMLMapLayer)
+            XMLDocument.appendChild(XMLMapLayers)
+            layer.readLayerXML(XMLMapLayer)
+            layer.reload()
 
-        XMLMapLayers.appendChild(XMLMapLayer)
-        XMLDocument.appendChild(XMLMapLayers)
-        layer.readLayerXML(XMLMapLayer)
-        layer.reload()
         if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
             #find original location of the layer
             storedGroupName = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["legendgroup"]
@@ -194,6 +199,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
             else:
                 originalGroup = QgsProject.instance().layerTreeRoot()
             #moving the layer to the original location
+            print "GRUPPO:",storedGroupName
             layerMoving = QgsProject.instance().layerTreeRoot().findLayer(layer.id())
             originalGroup.insertChildNode(0,layerMoving.clone())
             layerMoving.parent().removeChildNode(layerMoving)

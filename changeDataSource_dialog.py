@@ -24,11 +24,13 @@
 import os
 
 from PyQt4 import QtGui, uic
+from PyQt4.QtCore import pyqtSignal
 from qgis.core import QgsBrowserModel,QgsMimeDataUtils
 from changeDataSource_dialog_base import Ui_changeDataSourceDialogBase
 from browsedatasource import Ui_dataSourceBrowser
 
 class changeDataSourceDialog(QtGui.QDialog, Ui_changeDataSourceDialogBase):
+
     def __init__(self, parent=None):
         """Constructor."""
         super(changeDataSourceDialog, self).__init__(parent)
@@ -39,6 +41,11 @@ class changeDataSourceDialog(QtGui.QDialog, Ui_changeDataSourceDialogBase):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+
+    closedDialog = pyqtSignal()
+
+    def closeEvent(self,evnt):
+        self.closedDialog.emit()
 
 class dataSourceBrowser(QtGui.QDialog, Ui_dataSourceBrowser):
 

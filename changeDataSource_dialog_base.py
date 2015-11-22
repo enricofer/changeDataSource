@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\DEMO\Dropbox\dev\changeDataSource\changeDataSource_dialog_base.ui'
 #
-# Created: Sat Nov 14 15:11:22 2015
+# Created: Sun Nov 22 22:12:30 2015
 #      by: PyQt4 UI code generator 4.10.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -78,10 +78,20 @@ class Ui_changeDataSourceDialogBase(object):
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem)
+        self.handleBadLayersCheckbox = QtGui.QCheckBox(changeDataSourceDialogBase)
+        self.handleBadLayersCheckbox.setObjectName(_fromUtf8("handleBadLayersCheckbox"))
+        self.horizontalLayout_2.addWidget(self.handleBadLayersCheckbox)
         self.reconcileButton = QtGui.QPushButton(changeDataSourceDialogBase)
         self.reconcileButton.setObjectName(_fromUtf8("reconcileButton"))
         self.horizontalLayout_2.addWidget(self.reconcileButton)
         self.buttonBox = QtGui.QDialogButtonBox(changeDataSourceDialogBase)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.buttonBox.sizePolicy().hasHeightForWidth())
+        self.buttonBox.setSizePolicy(sizePolicy)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Apply|QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Reset)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
@@ -102,7 +112,7 @@ class Ui_changeDataSourceDialogBase(object):
         self.label_3.setText(_translate("changeDataSourceDialogBase", "New datasource type:", None))
         self.onlySelectedCheck.setText(_translate("changeDataSourceDialogBase", "Between selected rows", None))
         self.replaceButton.setText(_translate("changeDataSourceDialogBase", "Replace", None))
+        self.handleBadLayersCheckbox.setText(_translate("changeDataSourceDialogBase", "Handle bad layers", None))
         self.reconcileButton.setText(_translate("changeDataSourceDialogBase", "Reconcile unhandled", None))
-
 
 from qgis.gui import QgsFieldExpressionWidget

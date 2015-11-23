@@ -177,6 +177,7 @@ class changeDataSource:
         self.changeDSTool = setDataSource(self, )
         self.browserDialog = dataSourceBrowser()
 
+        self.badLayersHandler = myBadLayerHandler(self)
         s = QSettings()
         handleBadLayersSetting = s.value("changeDataSource/handleBadLayers", defaultValue =  "undef")
         if handleBadLayersSetting == "undef":
@@ -189,8 +190,8 @@ class changeDataSource:
         elif handleBadLayersSetting == "false":
             self.handleBadLayers = None
             self.dlg.handleBadLayersCheckbox.setChecked(False)
-        self.badLayersHandler = myBadLayerHandler(self)
-        self.defaultHandler = myDefaultBadLayerHandler()
+        if self.handleBadLayers:
+            QgsProject.instance().setBadLayerHandler(self.badLayersHandler)
         self.connectSignals()
         self.session  = 0
 
@@ -231,13 +232,12 @@ class changeDataSource:
         get control of bad layer handling
         '''
         if self.handleBadLayers:
-            QgsProject.instance().setBadLayerHandler(self.badLayersHandler)
             try:
+                QgsProject.instance().setBadLayerHandler(self.defaultHandler)
                 QgsProject.instance().writeProject.connect(self.backupUnhandledLayers)
             except:
                 pass
         else:
-            QgsProject.instance().setBadLayerHandler(self.defaultHandler)
             try:
                 QgsProject.instance().writeProject.disconnect(self.backupUnhandledLayers)
             except:
@@ -812,15 +812,5 @@ class myBadLayerHandler(QgsProjectBadLayerHandler):
             self.openDialogOnRecover = True
         else:
             self.openDialogOnRecover = None
-
-class myDefaultBadLayerHandler(QgsProjectBadLayerHandler):
-    '''
-    class that inherits default QgsProjectBadLayerHandler to
-    '''
-    def __init__(self):
-        super(myDefaultBadLayerHandler, self).__init__()
-
-    def handleBadLayers(self,layers,projectDom):
-        super(myDefaultBadLayerHandler, self).handleBadLayers(layers,projectDom)
 
 

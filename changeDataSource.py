@@ -190,8 +190,8 @@ class changeDataSource:
         elif handleBadLayersSetting == "false":
             self.handleBadLayers = None
             self.dlg.handleBadLayersCheckbox.setChecked(False)
-        if self.handleBadLayers:
-            QgsProject.instance().setBadLayerHandler(self.badLayersHandler)
+        #if self.handleBadLayers:
+        #    QgsProject.instance().setBadLayerHandler(self.badLayersHandler)
         self.connectSignals()
         self.session  = 0
 
@@ -207,7 +207,7 @@ class changeDataSource:
         self.iface.initializationCompleted.connect(self.initHandleBadLayers)
         self.iface.projectRead.connect(self.recoverUnhandledLayers)
         self.iface.newProjectCreated.connect(self.updateSession)
-        self.initHandleBadLayers()
+        #self.initHandleBadLayers()
 
     def setEmbeddedLayer(self,layer):
         root = QgsProject.instance().layerTreeRoot()
@@ -232,8 +232,8 @@ class changeDataSource:
         get control of bad layer handling
         '''
         if self.handleBadLayers:
+            QgsProject.instance().setBadLayerHandler(self.badLayersHandler)
             try:
-                QgsProject.instance().setBadLayerHandler(self.defaultHandler)
                 QgsProject.instance().writeProject.connect(self.backupUnhandledLayers)
             except:
                 pass
@@ -392,10 +392,6 @@ class changeDataSource:
     def populateLayerTable(self, onlyUnhandled = None):
         '''
         method to write layer info in layer table
-        '''
-        '''
-        :param onlyUnhandled:
-        :return:
         '''
         self.changeDSTool.populateComboBox(self.dlg.datasourceCombo,[""]+self.changeDSTool.vectorDSList.keys()+self.changeDSTool.rasterDSList.keys())
         self.dlg.layerTable.clear()
@@ -584,7 +580,7 @@ class changeDataSource:
         method to remove service properties layer, used for expression changes
         and unhandled layers group if empty
         '''
-        "removing"
+        print "removing"
         QgsMapLayerRegistry.instance().removeMapLayer(self.layersPropLayer.id())
         #remove unhandled layers group if present
         unhandledGroup = QgsProject.instance().layerTreeRoot().findGroup("unhandled layers")
@@ -599,11 +595,12 @@ class changeDataSource:
         '''
         method to handle button box clicking
         '''
+        print button.text()
         if button.text() == "Reset":
             print "reset"
             self.removeServiceLayers()
             self.populateLayerTable()
-        elif button.text() == "Cancel":
+        elif button.text() == "Cancel" or button.text() == "&Cancel":
             self.removeServiceLayers()
             self.dlg.hide()
         elif button.text() == "Apply":

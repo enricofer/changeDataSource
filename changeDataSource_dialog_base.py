@@ -104,7 +104,7 @@ class Ui_changeDataSourceDialogBase(object):
         QtCore.QMetaObject.connectSlotsByName(changeDataSourceDialogBase)
 
     def retranslateUi(self, changeDataSourceDialogBase):
-        changeDataSourceDialogBase.setWindowTitle(_translate("changeDataSourceDialogBase", "Change datasource globally", None))
+        changeDataSourceDialogBase.setWindowTitle(_translate("changeDataSourceDialogBase", "Change datasource", None))
         self.layerTable.setSortingEnabled(True)
         self.label.setText(_translate("changeDataSourceDialogBase", "Find:", None))
         self.label_2.setText(_translate("changeDataSourceDialogBase", "Replace:", None))

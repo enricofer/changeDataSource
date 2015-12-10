@@ -200,7 +200,10 @@ class changeDataSource:
         self.changeDSActionRaster.triggered.connect(self.changeLayerDS)
         self.dlg.replaceButton.clicked.connect(self.replaceDS)
         self.dlg.layerTable.verticalHeader().sectionClicked.connect(self.activateSelection)
-        self.dlg.buttonBox.clicked.connect(self.buttonBoxHub)
+        #self.dlg.buttonBox.clicked.connect(self.buttonBoxHub)
+        self.dlg.connect(self.dlg.buttonBox.button(QDialogButtonBox.Reset), SIGNAL("clicked()"), lambda: self.buttonBoxHub("Reset"))
+        self.dlg.connect(self.dlg.buttonBox.button(QDialogButtonBox.Apply), SIGNAL("clicked()"), lambda: self.buttonBoxHub("Apply"))
+        self.dlg.connect(self.dlg.buttonBox.button(QDialogButtonBox.Cancel), SIGNAL("clicked()"), lambda: self.buttonBoxHub("Cancel"))
         self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
         self.dlg.closedDialog.connect(self.removeServiceLayers)
         self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
@@ -591,19 +594,19 @@ class changeDataSource:
                 unhandledGroup.parent().removeChildNode(unhandledGroup)
 
 
-    def buttonBoxHub(self,button):
+    def buttonBoxHub(self,kod):
         '''
         method to handle button box clicking
         '''
-        print button.text()
-        if button.text() == "Reset":
+        print kod
+        if kod == "Reset":
             print "reset"
             self.removeServiceLayers()
             self.populateLayerTable()
-        elif button.text() == "Cancel" or button.text() == "&Cancel":
+        elif kod == "Cancel":
             self.removeServiceLayers()
             self.dlg.hide()
-        elif button.text() == "Apply":
+        elif kod == "Apply":
             self.applyDSChanges()
 
     def reconcileUnhandled(self):

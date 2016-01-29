@@ -596,19 +596,19 @@ class changeDataSource:
                 unhandledGroup.parent().removeChildNode(unhandledGroup)
 
 
-    def buttonBoxHub(self,button):
+    def buttonBoxHub(self,kod):
         '''
         method to handle button box clicking
         '''
-        print button.text()
-        if button.text() == "Reset":
+        print kod
+        if kod == "Reset":
             print "reset"
             self.removeServiceLayers()
             self.populateLayerTable()
-        elif button.text() == "Cancel" or button.text() == "&Cancel":
+        elif kod == "Cancel":
             self.removeServiceLayers()
             self.dlg.hide()
-        elif button.text() == "Apply":
+        elif kod == "Apply":
             self.applyDSChanges()
 
     def reconcileUnhandled(self):
@@ -815,5 +815,4 @@ class myBadLayerHandler(QgsProjectBadLayerHandler):
             self.openDialogOnRecover = True
         else:
             self.openDialogOnRecover = None
-
 

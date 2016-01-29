@@ -128,6 +128,14 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         landing method clicking apply in button box
         '''
         self.applyDataSource(self.layer,self.selectDatasourceCombo.currentText().lower().replace(' ',''),self.lineEdit.toPlainText())
+        #make a def procedure of this ....
+        layerIsUnhandled = self.parent.badLayersHandler.getActualLayersIds() and self.layer.id() in self.parent.badLayersHandler.getActualLayersIds()
+        if layerIsUnhandled:
+            print self.parent.badLayersHandler.getActualLayersIds()
+            self.parent.badLayersHandler.removeUnhandledLayer(self.layer.id())
+            if not self.parent.badLayersHandler.getUnhandledLayers():
+                self.parent.removeServiceLayers()
+
 
     def applyDataSource(self,applyLayer,newProvider,newDatasource):
         '''

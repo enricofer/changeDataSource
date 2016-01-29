@@ -181,9 +181,9 @@ class changeDataSource:
         s = QSettings()
         handleBadLayersSetting = s.value("changeDataSource/handleBadLayers", defaultValue =  "undef")
         if handleBadLayersSetting == "undef":
-            self.handleBadLayers = True
-            self.dlg.handleBadLayersCheckbox.setChecked(True)
-            s.setValue("changeDataSource/handleBadLayers","true")
+            self.handleBadLayers = None
+            self.dlg.handleBadLayersCheckbox.setChecked(False)
+            s.setValue("changeDataSource/handleBadLayers","false")
         elif handleBadLayersSetting == "true":
             self.handleBadLayers = True
             self.dlg.handleBadLayersCheckbox.setChecked(True)
@@ -568,6 +568,11 @@ class changeDataSource:
             if rowProviderChanging or rowDatasourceChanging:
                 if self.changeDSTool.applyDataSource(rowLayer,rowProvider,rowDatasource):
                     resultStyle = "QLineEdit{background: green;}"
+                    if layerIsUnhandled:
+                        print self.badLayersHandler.getActualLayersIds()
+                        self.badLayersHandler.removeUnhandledLayer(rowLayer.id())
+                        if not self.badLayersHandler.getUnhandledLayers():
+                            self.removeServiceLayers()
                 else:
                     resultStyle = "QLineEdit{background: red;}"
                 if rowProviderChanging:
@@ -746,6 +751,7 @@ class myBadLayerHandler(QgsProjectBadLayerHandler):
             self.openDialogOnRecover = None
         else:
             return None
+
 
     def handleBadLayers(self,layers,projectDom):
         '''

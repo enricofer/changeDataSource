@@ -1,5 +1,8 @@
 V1.0
 Release
 
-V2.0 2015/12/01
+V2.0 2016/01/29
 Datasource browsing feature, Bad layers Handling
+
+V2.1 2016/02/01
+Merge PR from https://github.com/czalaviek: New handling button signals - now plugin GUI isn't language-sensitive.

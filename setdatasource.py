@@ -175,27 +175,27 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
             qgisVersionOk = False
         # read layer definition
         print qgisVersionOk
-        if qgisVersionOk and layer.type() == QgsMapLayer.VectorLayer:
+        #if qgisVersionOk and layer.type() == QgsMapLayer.VectorLayer:
             # try to use ad-hoc method if possible
-            layer.setDataSource(newDatasource,layer.name(),newProvider)
-        else:
-            XMLDocument = QDomDocument("style")
-            XMLMapLayers = XMLDocument.createElement("maplayers")
-            XMLMapLayer = XMLDocument.createElement("maplayer")
-            layer.writeLayerXML(XMLMapLayer,XMLDocument)
-            # apply layer definition
-            XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newDatasource)
-            XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newProvider)
-            if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
-                #if layer is unhandled, rendered dom definition is replaced with the old one
-                unhandledDom = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["layerDom"]
-                unhandledRenderer = unhandledDom.namedItem("renderer-v2").cloneNode()
-                if XMLMapLayer.replaceChild(unhandledRenderer,XMLMapLayer.namedItem("renderer-v2")).isNull():
-                    print "unhandled layer invalid renderer"
-            XMLMapLayers.appendChild(XMLMapLayer)
-            XMLDocument.appendChild(XMLMapLayers)
-            layer.readLayerXML(XMLMapLayer)
-            layer.reload()
+            #layer.setDataSource(newDatasource,layer.name(),newProvider)
+        #else:
+        XMLDocument = QDomDocument("style")
+        XMLMapLayers = XMLDocument.createElement("maplayers")
+        XMLMapLayer = XMLDocument.createElement("maplayer")
+        layer.writeLayerXML(XMLMapLayer,XMLDocument)
+        # apply layer definition
+        XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newDatasource)
+        XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newProvider)
+        if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
+            #if layer is unhandled, rendered dom definition is replaced with the old one
+            unhandledDom = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["layerDom"]
+            unhandledRenderer = unhandledDom.namedItem("renderer-v2").cloneNode()
+            if XMLMapLayer.replaceChild(unhandledRenderer,XMLMapLayer.namedItem("renderer-v2")).isNull():
+                print "unhandled layer invalid renderer"
+        XMLMapLayers.appendChild(XMLMapLayer)
+        XMLDocument.appendChild(XMLMapLayers)
+        layer.readLayerXML(XMLMapLayer)
+        layer.reload()
 
         if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
             #find original location of the layer

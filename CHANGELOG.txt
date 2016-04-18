@@ -6,3 +6,6 @@ Datasource browsing feature, Bad layers Handling
 
 V2.1 2016/02/01
 Merge PR from https://github.com/czalaviek: New handling button signals - now plugin GUI isn't language-sensitive.
+
+V2.2 2016/04/15
+Layer properties not keeped issue fix (native setDataSource method issue)

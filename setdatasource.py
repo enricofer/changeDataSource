@@ -177,6 +177,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         print qgisVersionOk
         #if qgisVersionOk and layer.type() == QgsMapLayer.VectorLayer:
             # try to use ad-hoc method if possible
+            # Disabled waiting for api fix - 2016/04/10
             #layer.setDataSource(newDatasource,layer.name(),newProvider)
         #else:
         XMLDocument = QDomDocument("style")

@@ -368,7 +368,8 @@ class changeDataSource:
             self.dlg.onlySelectedCheck.setChecked(False)
 
     def changeLayerDS(self):
-        self.changeDSTool.openDataSourceDialog(self.iface.legendInterface().currentLayer())
+        self.dlg.hide()
+        self.changeDSTool.openDataSourceDialog(self.iface.legendInterface().currentLayer(), self.badLayersHandler)
         
     def unload(self):
         """
@@ -559,8 +560,7 @@ class changeDataSource:
             rowProvider = rowProviderCell.text()
             rowDatasource = rowDatasourceCell.text()
             rowLayer = QgsMapLayerRegistry.instance().mapLayer(rowLayerID)
-            layerIsUnhandled = self.badLayersHandler.getActualLayersIds() and rowLayer.id() in self.badLayersHandler.getActualLayersIds()
-            if reconcileUnhandled and layerIsUnhandled:
+            if reconcileUnhandled and self.badLayersHandler.isUnhandled(rowLayerID):
                 rowProviderChanging = True
                 rowDatasourceChanging = True
             else:
@@ -568,9 +568,10 @@ class changeDataSource:
                 rowDatasourceChanging = rowDatasourceCell.changed
 
             if rowProviderChanging or rowDatasourceChanging:
+                print ("ROWS",rowLayer,rowProvider,rowDatasource)
                 if self.changeDSTool.applyDataSource(rowLayer,rowProvider,rowDatasource):
                     resultStyle = "QLineEdit{background: green;}"
-                    if layerIsUnhandled:
+                    if self.badLayersHandler.isUnhandled(rowLayerID):
                         print self.badLayersHandler.getActualLayersIds()
                         self.badLayersHandler.removeUnhandledLayer(rowLayer.id())
                         if not self.badLayersHandler.getUnhandledLayers():
@@ -588,7 +589,10 @@ class changeDataSource:
         and unhandled layers group if empty
         '''
         print "removing"
-        QgsMapLayerRegistry.instance().removeMapLayer(self.layersPropLayer.id())
+        try:
+            QgsMapLayerRegistry.instance().removeMapLayer(self.layersPropLayer.id())
+        except:
+            pass
         #remove unhandled layers group if present
         unhandledGroup = QgsProject.instance().layerTreeRoot().findGroup("unhandled layers")
         print unhandledGroup
@@ -687,6 +691,12 @@ class myBadLayerHandler(QgsProjectBadLayerHandler):
     def removeUnhandledLayer(self,removeKey):
         if self.getUnhandledLayers() and removeKey in self.getUnhandledLayers():
             del self.badLayersProps[removeKey]
+
+    def isUnhandled(self,layerid):
+        if self.getUnhandledLayers():
+            return layerid in self.getActualLayersIds()
+        else:
+            return None
 
     def getUnhandledLayers(self):
         if self.badSession == self.parent.session:

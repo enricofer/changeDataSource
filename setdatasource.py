@@ -73,11 +73,12 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         '''
         pass
 
-    def openDataSourceDialog(self,layer):
+    def openDataSourceDialog(self,layer,badLayersHandler):
         '''
         method to prep and show single datasource edit dialog
         '''
         self.layer = layer
+        self.badLayersHandler = badLayersHandler
         self.setWindowTitle(layer.name())
         #if layer is unhandled get unhandled parameters
         if self.parent.badLayersHandler.getActualLayersIds() and self.layer.id() in self.parent.badLayersHandler.getActualLayersIds():
@@ -143,13 +144,18 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         '''
         self.hide()
         # new layer import
+        print "applyDataSource", applyLayer.type()
         if applyLayer.type() == QgsMapLayer.VectorLayer:
+            print "vector"
             probeLayer = QgsVectorLayer(newDatasource,"probe", newProvider)
         else:
+            print "raster"
             probeLayer = QgsRasterLayer(newDatasource,"probe", newProvider)
         if not probeLayer.isValid():
             self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=QgsMessageBar.CRITICAL, duration=4)
             return None
+        #print "geometryTypes",probeLayer.geometryType(), applyLayer.geometryType()
+        
         if applyLayer.type() == QgsMapLayer.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
             self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
             return None
@@ -219,6 +225,11 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         self.iface.actionDraw().trigger()
         self.iface.mapCanvas().refresh()
         self.iface.legendInterface().refreshLayerSymbology(layer)
+        
+        try:
+            self.badLayersHandler.removeUnhandledLayer(layer.id())
+        else:
+            pass
 
     def populateComboBox(self,combo,list,dataPayload = None,predef = None,sort = None):
         '''

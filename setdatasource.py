@@ -228,7 +228,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         
         try:
             self.badLayersHandler.removeUnhandledLayer(layer.id())
-        else:
+        except:
             pass
 
     def populateComboBox(self,combo,list,dataPayload = None,predef = None,sort = None):

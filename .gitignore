@@ -9,3 +9,5 @@ plugin_upload.py
 compile.bat
 compileXP.bat
 validSql.log
+unhandled*.*
+scripts/

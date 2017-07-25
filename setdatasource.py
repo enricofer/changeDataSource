@@ -148,9 +148,11 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         if applyLayer.type() == QgsMapLayer.VectorLayer:
             print "vector"
             probeLayer = QgsVectorLayer(newDatasource,"probe", newProvider)
+            extent = None
         else:
             print "raster"
             probeLayer = QgsRasterLayer(newDatasource,"probe", newProvider)
+            extent = probeLayer.extent()
         if not probeLayer.isValid():
             self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=QgsMessageBar.CRITICAL, duration=4)
             return None
@@ -168,10 +170,10 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         #else:
         #
         newDatasource = probeLayer.source()
-        self.setDataSource(applyLayer, newProvider, newDatasource)
+        self.setDataSource(applyLayer, newProvider, newDatasource, extent)
         return True
 
-    def setDataSource(self, layer, newProvider, newDatasource):
+    def setDataSource(self, layer, newProvider, newDatasource, extent=None):
         '''
         Method to write the new datasource to a raster Layer
         '''
@@ -180,7 +182,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         else:
             qgisVersionOk = False
         # read layer definition
-        print qgisVersionOk
+        print "vesrion", qgisVersionOk
         #if qgisVersionOk and layer.type() == QgsMapLayer.VectorLayer:
             # try to use ad-hoc method if possible
             # Disabled waiting for api fix - 2016/04/10
@@ -193,6 +195,12 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         # apply layer definition
         XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newDatasource)
         XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newProvider)
+        if extent: #if a new extent (for raster) is provided it is applied to the layer
+            XMLMapLayerExtent = XMLMapLayer.firstChildElement("extent")
+            XMLMapLayerExtent.firstChildElement("xmin").firstChild().setNodeValue(str(extent.xMinimum()))
+            XMLMapLayerExtent.firstChildElement("xmax").firstChild().setNodeValue(str(extent.xMaximum()))
+            XMLMapLayerExtent.firstChildElement("ymin").firstChild().setNodeValue(str(extent.yMinimum()))
+            XMLMapLayerExtent.firstChildElement("ymax").firstChild().setNodeValue(str(extent.yMaximum()))
         if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
             #if layer is unhandled, rendered dom definition is replaced with the old one
             unhandledDom = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["layerDom"]

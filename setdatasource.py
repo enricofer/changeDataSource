@@ -162,12 +162,12 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             probeLayer = QgsRasterLayer(newDatasource,"probe", newProvider)
             extent = probeLayer.extent()
         if not probeLayer.isValid():
-            self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=QgsMessageBar.CRITICAL, duration=4)
+            self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=Qgis.Critical, duration=4)
             return None
         #print "geometryTypes",probeLayer.geometryType(), applyLayer.geometryType()
 
         if applyLayer.type() == QgsMapLayer.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
-            self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
+            self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=Qgis.Critical, duration=4)
             return None
         #if URI is a local path transform it to absolute path
         #if newProvider == "ogr" or newProvider == "gdal" :

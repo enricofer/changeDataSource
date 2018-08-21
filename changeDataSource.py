@@ -177,8 +177,8 @@ class changeDataSource(object):
             parent=self.iface.mainWindow())
         self.changeDSActionVector = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change vector datasource", self.iface )
         self.changeDSActionRaster = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change raster datasource", self.iface )
-        self.iface.addCustomActionForLayerType(self.changeDSActionVector,"01", QgsMapLayer.VectorLayer,True)
-        self.iface.addCustomActionForLayerType(self.changeDSActionRaster,"02", QgsMapLayer.RasterLayer,True)
+        self.iface.addCustomActionForLayerType(self.changeDSActionVector,"", QgsMapLayer.VectorLayer,True)
+        self.iface.addCustomActionForLayerType(self.changeDSActionRaster,"", QgsMapLayer.RasterLayer,True)
         self.changeDSTool = setDataSource(self, )
         self.browserDialog = dataSourceBrowser()
 
@@ -279,16 +279,17 @@ class changeDataSource(object):
                 '''
                 assign original style to unhandled layers
                 '''
+                context = QgsReadWriteContext()
                 XMLDocument = QDomDocument("style")
                 XMLMapLayers = XMLDocument.createElement("maplayers")
                 XMLMapLayer = XMLDocument.createElement("maplayer")
-                unhandledLayer.writeLayerXML(XMLMapLayer,XMLDocument)
+                unhandledLayer.writeLayerXml(XMLMapLayer, XMLDocument, context)
                 unhandledRendererDom = XMLMapLayer.namedItem("renderer-v2")
                 validRendererDom = data["layerDom"].namedItem("renderer-v2").cloneNode()
                 XMLMapLayer.replaceChild(validRendererDom,unhandledRendererDom)
                 XMLMapLayers.appendChild(XMLMapLayer)
                 XMLDocument.appendChild(XMLMapLayers)
-                unhandledLayer.readLayerXML(XMLMapLayer)
+                unhandledLayer.readLayerXml(XMLMapLayer, context)
                 #unhandledLayer.reload()
                 QgsMapLayerRegistry.instance().addMapLayer(unhandledLayer,False)
                 unhandledGroup.addLayer(unhandledLayer)
@@ -374,7 +375,7 @@ class changeDataSource(object):
 
     def changeLayerDS(self):
         self.dlg.hide()
-        self.changeDSTool.openDataSourceDialog(self.iface.legendInterface().currentLayer(), self.badLayersHandler)
+        self.changeDSTool.openDataSourceDialog(self.iface.layerTreeView().currentLayer(), self.badLayersHandler)
 
     def unload(self):
         """
@@ -426,7 +427,7 @@ class changeDataSource(object):
         self.dlg.layerTable.hideColumn(6)
         lr = QgsMapLayerRegistry.instance()
 
-        for layer in self.iface.legendInterface().layers():
+        for layer in lr.mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer or layer.type() == QgsMapLayer.RasterLayer:
                 provider = None
                 if self.badLayersHandler.getActualLayersIds() and layer.id() in self.badLayersHandler.getActualLayersIds():

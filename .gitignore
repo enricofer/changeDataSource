@@ -11,3 +11,5 @@ compileXP.bat
 validSql.log
 unhandled*.*
 scripts/
+*.wpr
+*.wpu

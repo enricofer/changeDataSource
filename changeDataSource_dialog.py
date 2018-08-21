@@ -26,7 +26,7 @@ import os
 
 from qgis.PyQt import QtGui, uic, QtWidgets
 from qgis.PyQt.QtCore import pyqtSignal
-from qgis.core import QgsBrowserModel,QgsMimeDataUtils
+from qgis.core import QgsBrowserModel, QgsMimeDataUtils
 from .changeDataSource_dialog_base import Ui_changeDataSourceDialogBase
 from .browsedatasource import Ui_dataSourceBrowser
 
@@ -61,6 +61,7 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.browserModel = QgsBrowserModel()
+        self.browserModel.initialize()
         self.dataSourceTree.setModel(self.browserModel)
         self.dataSourceTree.doubleClicked.connect(self.getUriFromBrowser)
         self.dataSourceTree.header().hide()

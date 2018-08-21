@@ -119,7 +119,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         '''
         convenience method to rebuild joins if lost
         '''
-        for layer in self.iface.legendInterface().layers():
+        for layer in QgsMapLayerRegistry.mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer:
                 for joinDef in layer.vectorJoins():
                     if joinDef.joinLayerId == oldLayer.id():
@@ -200,7 +200,8 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         XMLDocument = QDomDocument("style")
         XMLMapLayers = XMLDocument.createElement("maplayers")
         XMLMapLayer = XMLDocument.createElement("maplayer")
-        layer.writeLayerXML(XMLMapLayer,XMLDocument)
+        context = QgsReadWriteContext()
+        layer.writeLayerXml(XMLMapLayer,XMLDocument, context)
         # apply layer definition
         XMLMapLayer.firstChildElement("datasource").firstChild().setNodeValue(newDatasource)
         XMLMapLayer.firstChildElement("provider").firstChild().setNodeValue(newProvider)
@@ -219,7 +220,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
                 print("unhandled layer invalid renderer")
         XMLMapLayers.appendChild(XMLMapLayer)
         XMLDocument.appendChild(XMLMapLayers)
-        layer.readLayerXML(XMLMapLayer)
+        layer.readLayerXml(XMLMapLayer, context)
         layer.reload()
 
         if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
@@ -243,7 +244,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
         self.iface.actionDraw().trigger()
         self.iface.mapCanvas().refresh()
-        self.iface.legendInterface().refreshLayerSymbology(layer)
+        self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
         try:
             self.badLayersHandler.removeUnhandledLayer(layer.id())

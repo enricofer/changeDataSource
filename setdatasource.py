@@ -19,23 +19,27 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
+from builtins import str
+from builtins import range
 from qgis.core import *
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtXml import *
-from ui_changeDSDialog import Ui_changeDataSourceDialog
-from changeDataSource_dialog import dataSourceBrowser
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from qgis.PyQt import QtCore, QtGui, QtWidgets
+from PyQt5.QtXml import *
+from .ui_changeDSDialog import Ui_changeDataSourceDialog
+from .changeDataSource_dialog import dataSourceBrowser
 
 from qgis.gui import QgsManageConnectionsDialog, QgsMessageBar
 import os.path
 
 
-class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
+class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
     def __init__(self,parent):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         self.parent = parent
         self.iface = parent.iface
         self.canvas = self.iface.mapCanvas()
@@ -95,9 +99,9 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
             source = QgsProject.instance().readPath(source)
 
         if layer.type() == QgsMapLayer.VectorLayer:
-            self.populateComboBox(self.selectDatasourceCombo,self.vectorDSList.keys(),predef = provider)
+            self.populateComboBox(self.selectDatasourceCombo,list(self.vectorDSList.keys()),predef = provider)
         else:
-            self.populateComboBox(self.selectDatasourceCombo,self.rasterDSList.keys(),predef = provider)
+            self.populateComboBox(self.selectDatasourceCombo,list(self.rasterDSList.keys()),predef = provider)
         self.lineEdit.setPlainText(source)
         #self.selectDS(self.selectDatasourceCombo.currentIndex())
         #print source
@@ -132,7 +136,8 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         #make a def procedure of this ....
         layerIsUnhandled = self.parent.badLayersHandler.getActualLayersIds() and self.layer.id() in self.parent.badLayersHandler.getActualLayersIds()
         if layerIsUnhandled:
-            print self.parent.badLayersHandler.getActualLayersIds()
+            # fix_print_with_import
+            print(self.parent.badLayersHandler.getActualLayersIds())
             self.parent.badLayersHandler.removeUnhandledLayer(self.layer.id())
             if not self.parent.badLayersHandler.getUnhandledLayers():
                 self.parent.removeServiceLayers()
@@ -144,20 +149,23 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         '''
         self.hide()
         # new layer import
-        print "applyDataSource", applyLayer.type()
+        # fix_print_with_import
+        print("applyDataSource", applyLayer.type())
         if applyLayer.type() == QgsMapLayer.VectorLayer:
-            print "vector"
+            # fix_print_with_import
+            print("vector")
             probeLayer = QgsVectorLayer(newDatasource,"probe", newProvider)
             extent = None
         else:
-            print "raster"
+            # fix_print_with_import
+            print("raster")
             probeLayer = QgsRasterLayer(newDatasource,"probe", newProvider)
             extent = probeLayer.extent()
         if not probeLayer.isValid():
             self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=QgsMessageBar.CRITICAL, duration=4)
             return None
         #print "geometryTypes",probeLayer.geometryType(), applyLayer.geometryType()
-        
+
         if applyLayer.type() == QgsMapLayer.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
             self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=QgsMessageBar.CRITICAL, duration=4)
             return None
@@ -182,7 +190,8 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         else:
             qgisVersionOk = False
         # read layer definition
-        print "vesrion", qgisVersionOk
+        # fix_print_with_import
+        print("vesrion", qgisVersionOk)
         #if qgisVersionOk and layer.type() == QgsMapLayer.VectorLayer:
             # try to use ad-hoc method if possible
             # Disabled waiting for api fix - 2016/04/10
@@ -206,7 +215,8 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
             unhandledDom = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["layerDom"]
             unhandledRenderer = unhandledDom.namedItem("renderer-v2").cloneNode()
             if XMLMapLayer.replaceChild(unhandledRenderer,XMLMapLayer.namedItem("renderer-v2")).isNull():
-                print "unhandled layer invalid renderer"
+                # fix_print_with_import
+                print("unhandled layer invalid renderer")
         XMLMapLayers.appendChild(XMLMapLayer)
         XMLDocument.appendChild(XMLMapLayers)
         layer.readLayerXML(XMLMapLayer)
@@ -222,7 +232,8 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
             else:
                 originalGroup = QgsProject.instance().layerTreeRoot()
             #moving the layer to the original location
-            print "GRUPPO:",storedGroupName
+            # fix_print_with_import
+            print("GRUPPO:",storedGroupName)
             layerMoving = QgsProject.instance().layerTreeRoot().findLayer(layer.id())
             originalGroup.insertChildNode(0,layerMoving.clone())
             layerMoving.parent().removeChildNode(layerMoving)
@@ -233,7 +244,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         self.iface.actionDraw().trigger()
         self.iface.mapCanvas().refresh()
         self.iface.legendInterface().refreshLayerSymbology(layer)
-        
+
         try:
             self.badLayersHandler.removeUnhandledLayer(layer.id())
         except:
@@ -249,7 +260,7 @@ class setDataSource(QtGui.QDialog, Ui_changeDataSourceDialog):
         predefInList = None
         for elem in list:
             try:
-                item = QStandardItem(unicode(elem))
+                item = QStandardItem(str(elem))
             except TypeError:
                 item = QStandardItem(str(elem))
             model.appendRow(item)

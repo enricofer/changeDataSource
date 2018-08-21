@@ -20,21 +20,22 @@
  *                                                                         *
  ***************************************************************************/
 """
+from __future__ import absolute_import
 
 import os
 
-from PyQt4 import QtGui, uic
-from PyQt4.QtCore import pyqtSignal
+from qgis.PyQt import QtGui, uic, QtWidgets
+from qgis.PyQt.QtCore import pyqtSignal
 from qgis.core import QgsBrowserModel,QgsMimeDataUtils
-from changeDataSource_dialog_base import Ui_changeDataSourceDialogBase
-from browsedatasource import Ui_dataSourceBrowser
+from .changeDataSource_dialog_base import Ui_changeDataSourceDialogBase
+from .browsedatasource import Ui_dataSourceBrowser
 
-class changeDataSourceDialog(QtGui.QDialog, Ui_changeDataSourceDialogBase):
+class changeDataSourceDialog(QtWidgets.QDialog, Ui_changeDataSourceDialogBase):
 
     def __init__(self, parent=None):
         """Constructor."""
         super(changeDataSourceDialog, self).__init__(parent)
-        #QtGui.QDialog.__init__(self)
+        #QtWidgets.QDialog.__init__(self)
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see
@@ -47,12 +48,12 @@ class changeDataSourceDialog(QtGui.QDialog, Ui_changeDataSourceDialogBase):
     def closeEvent(self,evnt):
         self.closedDialog.emit()
 
-class dataSourceBrowser(QtGui.QDialog, Ui_dataSourceBrowser):
+class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
 
     def __init__(self, parent=None):
         """Constructor."""
         super(dataSourceBrowser, self).__init__(parent)
-        #QtGui.QDialog.__init__(self)
+        #QtWidgets.QDialog.__init__(self)
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
         # self.<objectname>, and you can use autoconnect slots - see

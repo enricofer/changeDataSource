@@ -77,13 +77,14 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         '''
         pass
 
-    def openDataSourceDialog(self,layer,badLayersHandler):
+    def openDataSourceDialog(self,layer):#,badLayersHandler):
         '''
         method to prep and show single datasource edit dialog
         '''
         self.layer = layer
-        self.badLayersHandler = badLayersHandler
+        #self.badLayersHandler = badLayersHandler
         self.setWindowTitle(layer.name())
+        '''
         #if layer is unhandled get unhandled parameters
         if self.parent.badLayersHandler.getActualLayersIds() and self.layer.id() in self.parent.badLayersHandler.getActualLayersIds():
 
@@ -94,6 +95,11 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             provider = self.layer.dataProvider().name()
             source = self.layer.source()
             self.label.setText("URI:")
+        '''
+
+        provider = self.layer.dataProvider().name()
+        source = self.layer.source()
+        self.label.setText("URI:")
 
         if provider == "ogr" or provider == "gdal":
             source = QgsProject.instance().readPath(source)
@@ -134,6 +140,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         '''
         self.applyDataSource(self.layer,self.selectDatasourceCombo.currentText().lower().replace(' ',''),self.lineEdit.toPlainText())
         #make a def procedure of this ....
+        '''
         layerIsUnhandled = self.parent.badLayersHandler.getActualLayersIds() and self.layer.id() in self.parent.badLayersHandler.getActualLayersIds()
         if layerIsUnhandled:
             # fix_print_with_import
@@ -141,6 +148,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             self.parent.badLayersHandler.removeUnhandledLayer(self.layer.id())
             if not self.parent.badLayersHandler.getUnhandledLayers():
                 self.parent.removeServiceLayers()
+        '''
 
 
     def applyDataSource(self,applyLayer,newProvider,newDatasource):
@@ -211,6 +219,8 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             XMLMapLayerExtent.firstChildElement("xmax").firstChild().setNodeValue(str(extent.xMaximum()))
             XMLMapLayerExtent.firstChildElement("ymin").firstChild().setNodeValue(str(extent.yMinimum()))
             XMLMapLayerExtent.firstChildElement("ymax").firstChild().setNodeValue(str(extent.yMaximum()))
+
+        '''
         if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
             #if layer is unhandled, rendered dom definition is replaced with the old one
             unhandledDom = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["layerDom"]
@@ -218,11 +228,14 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             if XMLMapLayer.replaceChild(unhandledRenderer,XMLMapLayer.namedItem("renderer-v2")).isNull():
                 # fix_print_with_import
                 print("unhandled layer invalid renderer")
+        '''
+
         XMLMapLayers.appendChild(XMLMapLayer)
         XMLDocument.appendChild(XMLMapLayers)
         layer.readLayerXml(XMLMapLayer, context)
         layer.reload()
 
+        '''
         if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
             #find original location of the layer
             storedGroupName = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["legendgroup"]
@@ -241,15 +254,18 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             originalGroup.setExpanded (True)
             #remove layer from unhandled layers
             self.parent.badLayersHandler.removeUnhandledLayer(self.parent.badLayersHandler.getIdFromActualId(layer.id()))
+        '''
 
         self.iface.actionDraw().trigger()
         self.iface.mapCanvas().refresh()
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
 
+        '''
         try:
             self.badLayersHandler.removeUnhandledLayer(layer.id())
         except:
             pass
+        '''
 
     def populateComboBox(self,combo,list,dataPayload = None,predef = None,sort = None):
         '''

@@ -1,16 +1,16 @@
-# This file contains metadata for your plugin. Since 
-# version 2.0 of QGIS this is the proper way to supply 
-# information about a plugin. The old method of 
-# embedding metadata in __init__.py will 
+# This file contains metadata for your plugin. Since
+# version 2.0 of QGIS this is the proper way to supply
+# information about a plugin. The old method of
+# embedding metadata in __init__.py will
 # is no longer supported since version 2.0.
 
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
 name=changeDataSource
-qgisMinimumVersion=2.8
+qgisMinimumVersion=3.0
 description=Right click on layer tree to change single layer datasource of click on icon to change datasources globally
-version=2.4
+version=2.5
 author=enrico ferreguti
 email=enricofer@gmail.com
 about= The plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table by clicking on toolbar plugin icon. The plugin takes control of bad layers handling allowing to specify valid datasources working on project
@@ -32,12 +32,14 @@ changelog=V1.0
   "Unhandled layers uncaught behaviour" issue fix
   V2.4 2017/07/26
   "Extent doesn't change applying new datasource to a raster layer" issue fixed
+  V2.5 2018/08/21
+  QGIS3 conversion
 # Tags are comma separated with spaces allowed
 tags=database, layers, legend, datasources, sources, bad layers, not found layers
 
 homepage=https://geogear.wordpress.com/2016/01/29/changedatasourceplugin-plugin-release-2-0/
 tracker= https://github.com/enricofer/changeDataSource/issues
-repository= https://github.com/enricofer/changeDataSource 
+repository= https://github.com/enricofer/changeDataSource
 category=Plugins
 icon=icon.png
 # experimental flag

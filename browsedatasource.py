@@ -7,7 +7,8 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt4 import QtCore, QtGui
+from builtins import object
+from qgis.PyQt import QtCore, QtGui, QtWidgets
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -16,30 +17,29 @@ except AttributeError:
         return s
 
 try:
-    _encoding = QtGui.QApplication.UnicodeUTF8
+    _encoding = QtWidgets.QApplication.UnicodeUTF8
     def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+        return QtWidgets.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig)
+        return QtWidgets.QApplication.translate(context, text, disambig)
 
 class Ui_dataSourceBrowser(object):
     def setupUi(self, dataSourceBrowser):
         dataSourceBrowser.setObjectName(_fromUtf8("dataSourceBrowser"))
         dataSourceBrowser.resize(400, 444)
-        self.buttonBox = QtGui.QDialogButtonBox(dataSourceBrowser)
+        self.buttonBox = QtWidgets.QDialogButtonBox(dataSourceBrowser)
         self.buttonBox.setGeometry(QtCore.QRect(50, 400, 341, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok)
+        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
-        self.dataSourceTree = QtGui.QTreeView(dataSourceBrowser)
+        self.dataSourceTree = QtWidgets.QTreeView(dataSourceBrowser)
         self.dataSourceTree.setGeometry(QtCore.QRect(10, 11, 381, 381))
         self.dataSourceTree.setObjectName(_fromUtf8("dataSourceTree"))
 
         self.retranslateUi(dataSourceBrowser)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("rejected()")), dataSourceBrowser.reject)
-        QtCore.QObject.connect(self.buttonBox, QtCore.SIGNAL(_fromUtf8("accepted()")), dataSourceBrowser.accept)
-        QtCore.QMetaObject.connectSlotsByName(dataSourceBrowser)
+        self.buttonBox.accepted.connect(dataSourceBrowser.accept)
+        self.buttonBox.rejected.connect(dataSourceBrowser.reject)
 
     def retranslateUi(self, dataSourceBrowser):
         dataSourceBrowser.setWindowTitle(_translate("dataSourceBrowser", "Dialog", None))

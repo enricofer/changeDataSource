@@ -20,20 +20,25 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.QtXml import *
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtXml import *
+from PyQt5.QtWidgets import *
 from qgis.core import *
 # Initialize Qt resources from file resources.py
-import resources_rc
+from . import resources_rc
 # Import the code for the dialog
-from changeDataSource_dialog import changeDataSourceDialog,dataSourceBrowser
-from setdatasource import setDataSource
-from qgis.gui import QgsMessageBar,QgsProjectBadLayerGuiHandler
+from .changeDataSource_dialog import changeDataSourceDialog,dataSourceBrowser
+from .setdatasource import setDataSource
+from qgis.gui import QgsMessageBar
 import os.path
 
 
-class changeDataSource:
+class changeDataSource(object):
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -170,10 +175,10 @@ class changeDataSource:
             text=self.tr(u'changeDataSource'),
             callback=self.run,
             parent=self.iface.mainWindow())
-        self.changeDSActionVector = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change vector datasource", self.iface.legendInterface() )
-        self.changeDSActionRaster = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change raster datasource", self.iface.legendInterface() )
-        self.iface.legendInterface().addLegendLayerAction(self.changeDSActionVector,"","01", QgsMapLayer.VectorLayer,True)
-        self.iface.legendInterface().addLegendLayerAction(self.changeDSActionRaster,"","02", QgsMapLayer.RasterLayer,True)
+        self.changeDSActionVector = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change vector datasource", self.iface )
+        self.changeDSActionRaster = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change raster datasource", self.iface )
+        self.iface.addCustomActionForLayerType(self.changeDSActionVector,"", QgsMapLayer.VectorLayer,True)
+        self.iface.addCustomActionForLayerType(self.changeDSActionRaster,"", QgsMapLayer.RasterLayer,True)
         self.changeDSTool = setDataSource(self, )
         self.browserDialog = dataSourceBrowser()
 
@@ -200,9 +205,9 @@ class changeDataSource:
         self.changeDSActionRaster.triggered.connect(self.changeLayerDS)
         self.dlg.replaceButton.clicked.connect(self.replaceDS)
         self.dlg.layerTable.verticalHeader().sectionClicked.connect(self.activateSelection)
-        self.dlg.connect(self.dlg.buttonBox.button(QDialogButtonBox.Reset), SIGNAL("clicked()"), lambda: self.buttonBoxHub("Reset"))
-        self.dlg.connect(self.dlg.buttonBox.button(QDialogButtonBox.Apply), SIGNAL("clicked()"), lambda: self.buttonBoxHub("Apply"))
-        self.dlg.connect(self.dlg.buttonBox.button(QDialogButtonBox.Cancel), SIGNAL("clicked()"), lambda: self.buttonBoxHub("Cancel"))
+        self.dlg.buttonBox.button(QDialogButtonBox.Reset).clicked.connect(lambda: self.buttonBoxHub("Reset"))
+        self.dlg.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(lambda: self.buttonBoxHub("Apply"))
+        self.dlg.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(lambda: self.buttonBoxHub("Cancel"))
         self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
         self.dlg.closedDialog.connect(self.removeServiceLayers)
         self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
@@ -257,7 +262,7 @@ class changeDataSource:
             root = QgsProject.instance().layerTreeRoot()
             unhandledGroup = root.addGroup("unhandled layers")
             #unhandledGroupIndex = self.iface.legendInterface().addGroup("unhandled_layers",True,0)
-            for key,data in self.badLayersHandler.badLayersProps.iteritems():
+            for key,data in self.badLayersHandler.badLayersProps.items():
                 if data["type"] == "vector":
                     if data["geometry"] == "Point":
                         layerGeometry = "MultiPoint"
@@ -274,16 +279,17 @@ class changeDataSource:
                 '''
                 assign original style to unhandled layers
                 '''
+                context = QgsReadWriteContext()
                 XMLDocument = QDomDocument("style")
                 XMLMapLayers = XMLDocument.createElement("maplayers")
                 XMLMapLayer = XMLDocument.createElement("maplayer")
-                unhandledLayer.writeLayerXML(XMLMapLayer,XMLDocument)
+                unhandledLayer.writeLayerXml(XMLMapLayer, XMLDocument, context)
                 unhandledRendererDom = XMLMapLayer.namedItem("renderer-v2")
                 validRendererDom = data["layerDom"].namedItem("renderer-v2").cloneNode()
                 XMLMapLayer.replaceChild(validRendererDom,unhandledRendererDom)
                 XMLMapLayers.appendChild(XMLMapLayer)
                 XMLDocument.appendChild(XMLMapLayers)
-                unhandledLayer.readLayerXML(XMLMapLayer)
+                unhandledLayer.readLayerXml(XMLMapLayer, context)
                 #unhandledLayer.reload()
                 QgsMapLayerRegistry.instance().addMapLayer(unhandledLayer,False)
                 unhandledGroup.addLayer(unhandledLayer)
@@ -333,14 +339,14 @@ class changeDataSource:
             for item in range(0,projectlayers.count()):
                 maplayer = projectlayers.item(item)
                 maplayerId = maplayer.namedItem("id").firstChild().nodeValue()
-                if maplayerId in self.badLayersHandler.badLayersProps.keys():
+                if maplayerId in list(self.badLayersHandler.badLayersProps.keys()):
                     maplayer.parentNode().removeChild(maplayer)
 
             #add bad Layers DOM to projectlayers
             qgisElement = projectDom.namedItem("qgis")
             XMLUnhandledLayers = projectDom.createElement("projectlayers")
             legendGroups = projectDom.elementsByTagName("legendgroup")
-            for key,data in self.badLayersHandler.badLayersProps.iteritems():
+            for key,data in self.badLayersHandler.badLayersProps.items():
                 QgsMapLayerRegistry.instance().removeMapLayer(key)
                 unhandledDom = data["layerDom"].cloneNode().toElement()
                 XMLUnhandledLayers.appendChild(unhandledDom)
@@ -361,7 +367,7 @@ class changeDataSource:
     def activateSelection(self,idx):
         indexes = []
         for selectionRange in self.dlg.layerTable.selectedRanges():
-            indexes.extend(range(selectionRange.topRow(), selectionRange.bottomRow()+1))
+            indexes.extend(list(range(selectionRange.topRow(), selectionRange.bottomRow()+1)))
         if indexes != []:
             self.dlg.onlySelectedCheck.setChecked(True)
         else:
@@ -369,14 +375,14 @@ class changeDataSource:
 
     def changeLayerDS(self):
         self.dlg.hide()
-        self.changeDSTool.openDataSourceDialog(self.iface.legendInterface().currentLayer(), self.badLayersHandler)
-        
+        self.changeDSTool.openDataSourceDialog(self.iface.layerTreeView().currentLayer(), self.badLayersHandler)
+
     def unload(self):
         """
         Disconnects from signals. Removes the plugin menu item and icon from QGIS GUI.
         """
-        self.iface.legendInterface().removeLegendLayerAction(self.changeDSActionVector)
-        self.iface.legendInterface().removeLegendLayerAction(self.changeDSActionRaster)
+        self.iface.removeCustomActionForLayerType(self.changeDSActionVector)
+        self.iface.removeCustomActionForLayerType(self.changeDSActionRaster)
         self.iface.initializationCompleted.disconnect(self.initHandleBadLayers)
         self.iface.projectRead.disconnect(self.recoverUnhandledLayers)
         try:
@@ -396,7 +402,7 @@ class changeDataSource:
         '''
         method to write layer info in layer table
         '''
-        self.changeDSTool.populateComboBox(self.dlg.datasourceCombo,[""]+self.changeDSTool.vectorDSList.keys()+self.changeDSTool.rasterDSList.keys())
+        self.changeDSTool.populateComboBox(self.dlg.datasourceCombo,[""]+list(self.changeDSTool.vectorDSList.keys())+list(self.changeDSTool.rasterDSList.keys()))
         self.dlg.layerTable.clear()
         for row in range(self.dlg.layerTable.rowCount()):
             self.dlg.layerTable.removeRow(row)
@@ -421,7 +427,7 @@ class changeDataSource:
         self.dlg.layerTable.hideColumn(6)
         lr = QgsMapLayerRegistry.instance()
 
-        for layer in self.iface.legendInterface().layers():
+        for layer in lr.mapLayers().values():
             if layer.type() == QgsMapLayer.VectorLayer or layer.type() == QgsMapLayer.RasterLayer:
                 provider = None
                 if self.badLayersHandler.getActualLayersIds() and layer.id() in self.badLayersHandler.getActualLayersIds():
@@ -458,7 +464,7 @@ class changeDataSource:
 
         self.layersPropLayer.dataProvider().addFeatures(dummyFeatures)
         QgsMapLayerRegistry.instance().addMapLayer(self.layersPropLayer)
-        self.iface.legendInterface().setLayerVisible(self.layersPropLayer, False)
+        core.QgsProject.instance().layerTreeRoot().findLayer(self.layersPropLayer.id()).setItemVisibilityChecked(False)
         self.dlg.mFieldExpressionWidget.setLayer(self.layersPropLayer)
         self.dlg.layerTable.resizeColumnToContents(1)
         self.dlg.layerTable.horizontalHeader().setResizeMode(2,QHeaderView.ResizeToContents)
@@ -527,7 +533,7 @@ class changeDataSource:
         #build replace list
         if self.dlg.onlySelectedCheck.isChecked():
             for selectionRange in self.dlg.layerTable.selectedRanges():
-                indexes.extend(range(selectionRange.topRow(), selectionRange.bottomRow()+1))
+                indexes.extend(list(range(selectionRange.topRow(), selectionRange.bottomRow()+1)))
             for row in indexes:
                 self.replaceList.append(QgsMapLayerRegistry.instance().mapLayer(self.dlg.layerTable.cellWidget(row,0).text()))
         else:
@@ -541,7 +547,7 @@ class changeDataSource:
             if self.dlg.mFieldExpressionWidget.isValidExpression():
                 exp = QgsExpression(self.dlg.mFieldExpressionWidget.currentText())
                 exp.prepare(self.layersPropLayer.pendingFields())
-                cell.setText(exp.evaluate(self.layersPropLayer.getFeatures(QgsFeatureRequest(row+1)).next()))
+                cell.setText(exp.evaluate(next(self.layersPropLayer.getFeatures(QgsFeatureRequest(row+1)))))
             else:
                 cell.setText(cell.text().replace(self.dlg.findEdit.text(),self.dlg.replaceEdit.text()))
             if self.dlg.datasourceCombo.currentText() != "":
@@ -568,11 +574,13 @@ class changeDataSource:
                 rowDatasourceChanging = rowDatasourceCell.changed
 
             if rowProviderChanging or rowDatasourceChanging:
-                print ("ROWS",rowLayer,rowProvider,rowDatasource)
+                # fix_print_with_import
+                print(("ROWS",rowLayer,rowProvider,rowDatasource))
                 if self.changeDSTool.applyDataSource(rowLayer,rowProvider,rowDatasource):
                     resultStyle = "QLineEdit{background: green;}"
                     if self.badLayersHandler.isUnhandled(rowLayerID):
-                        print self.badLayersHandler.getActualLayersIds()
+                        # fix_print_with_import
+                        print(self.badLayersHandler.getActualLayersIds())
                         self.badLayersHandler.removeUnhandledLayer(rowLayer.id())
                         if not self.badLayersHandler.getUnhandledLayers():
                             self.removeServiceLayers()
@@ -588,16 +596,19 @@ class changeDataSource:
         method to remove service properties layer, used for expression changes
         and unhandled layers group if empty
         '''
-        print "removing"
+        # fix_print_with_import
+        print("removing")
         try:
             QgsMapLayerRegistry.instance().removeMapLayer(self.layersPropLayer.id())
         except:
             pass
         #remove unhandled layers group if present
         unhandledGroup = QgsProject.instance().layerTreeRoot().findGroup("unhandled layers")
-        print unhandledGroup
+        # fix_print_with_import
+        print(unhandledGroup)
         if unhandledGroup:
-            print unhandledGroup.children()
+            # fix_print_with_import
+            print(unhandledGroup.children())
             if not unhandledGroup.children():
                 unhandledGroup.parent().removeChildNode(unhandledGroup)
 
@@ -606,9 +617,11 @@ class changeDataSource:
         '''
         method to handle button box clicking
         '''
-        print kod
+        # fix_print_with_import
+        print(kod)
         if kod == "Reset":
-            print "reset"
+            # fix_print_with_import
+            print("reset")
             self.removeServiceLayers()
             self.populateLayerTable()
         elif kod == "Cancel":
@@ -715,7 +728,7 @@ class myBadLayerHandler(QgsProjectBadLayerHandler):
     def getActualLayersIds(self):
         if self.getUnhandledLayers():
             actualLayersIds = {}
-            for key,data in self.getUnhandledLayers().iteritems():
+            for key,data in self.getUnhandledLayers().items():
                 actualLayersIds[data["tempid"]] = key
             return actualLayersIds
         else:

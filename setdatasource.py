@@ -139,16 +139,6 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         landing method clicking apply in button box
         '''
         self.applyDataSource(self.layer,self.selectDatasourceCombo.currentText().lower().replace(' ',''),self.lineEdit.toPlainText())
-        #make a def procedure of this ....
-        '''
-        layerIsUnhandled = self.parent.badLayersHandler.getActualLayersIds() and self.layer.id() in self.parent.badLayersHandler.getActualLayersIds()
-        if layerIsUnhandled:
-            # fix_print_with_import
-            print(self.parent.badLayersHandler.getActualLayersIds())
-            self.parent.badLayersHandler.removeUnhandledLayer(self.layer.id())
-            if not self.parent.badLayersHandler.getUnhandledLayers():
-                self.parent.removeServiceLayers()
-        '''
 
 
     def applyDataSource(self,applyLayer,newProvider,newDatasource):
@@ -177,14 +167,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         if applyLayer.type() == QgsMapLayer.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
             self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=Qgis.Critical, duration=4)
             return None
-        #if URI is a local path transform it to absolute path
-        #if newProvider == "ogr" or newProvider == "gdal" :
-        #    try:
-        #        newDatasource = os.path.relpath(probeLayer.source(),QgsProject.instance().readPath("./")).replace('\\','/')
-        #    except:
-        #        newDatasource = probeLayer.source()
-        #else:
-        #
+
         newDatasource = probeLayer.source()
         self.setDataSource(applyLayer, newProvider, newDatasource, extent)
         return True
@@ -197,14 +180,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             qgisVersionOk = True
         else:
             qgisVersionOk = False
-        # read layer definition
-        # fix_print_with_import
-        print("vesrion", qgisVersionOk)
-        #if qgisVersionOk and layer.type() == QgsMapLayer.VectorLayer:
-            # try to use ad-hoc method if possible
-            # Disabled waiting for api fix - 2016/04/10
-            #layer.setDataSource(newDatasource,layer.name(),newProvider)
-        #else:
+            
         XMLDocument = QDomDocument("style")
         XMLMapLayers = XMLDocument.createElement("maplayers")
         XMLMapLayer = XMLDocument.createElement("maplayer")
@@ -220,52 +196,14 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             XMLMapLayerExtent.firstChildElement("ymin").firstChild().setNodeValue(str(extent.yMinimum()))
             XMLMapLayerExtent.firstChildElement("ymax").firstChild().setNodeValue(str(extent.yMaximum()))
 
-        '''
-        if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
-            #if layer is unhandled, rendered dom definition is replaced with the old one
-            unhandledDom = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["layerDom"]
-            unhandledRenderer = unhandledDom.namedItem("renderer-v2").cloneNode()
-            if XMLMapLayer.replaceChild(unhandledRenderer,XMLMapLayer.namedItem("renderer-v2")).isNull():
-                # fix_print_with_import
-                print("unhandled layer invalid renderer")
-        '''
-
         XMLMapLayers.appendChild(XMLMapLayer)
         XMLDocument.appendChild(XMLMapLayers)
         layer.readLayerXml(XMLMapLayer, context)
         layer.reload()
 
-        '''
-        if self.parent.badLayersHandler.getActualLayersIds() and layer.id() in self.parent.badLayersHandler.getActualLayersIds():
-            #find original location of the layer
-            storedGroupName = self.parent.badLayersHandler.getUnhandledLayerFromActualId(layer.id())["legendgroup"]
-            if storedGroupName != "":
-                originalGroup = QgsProject.instance().layerTreeRoot().findGroup(storedGroupName)
-                if not originalGroup:
-                    originalGroup = QgsProject.instance().layerTreeRoot()
-            else:
-                originalGroup = QgsProject.instance().layerTreeRoot()
-            #moving the layer to the original location
-            # fix_print_with_import
-            print("GRUPPO:",storedGroupName)
-            layerMoving = QgsProject.instance().layerTreeRoot().findLayer(layer.id())
-            originalGroup.insertChildNode(0,layerMoving.clone())
-            layerMoving.parent().removeChildNode(layerMoving)
-            originalGroup.setExpanded (True)
-            #remove layer from unhandled layers
-            self.parent.badLayersHandler.removeUnhandledLayer(self.parent.badLayersHandler.getIdFromActualId(layer.id()))
-        '''
-
         self.iface.actionDraw().trigger()
         self.iface.mapCanvas().refresh()
         self.iface.layerTreeView().refreshLayerSymbology(layer.id())
-
-        '''
-        try:
-            self.badLayersHandler.removeUnhandledLayer(layer.id())
-        except:
-            pass
-        '''
 
     def populateComboBox(self,combo,list,dataPayload = None,predef = None,sort = None):
         '''

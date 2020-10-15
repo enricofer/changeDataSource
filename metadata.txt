@@ -10,7 +10,7 @@
 name=changeDataSource
 qgisMinimumVersion=3.0
 description=Right click on layer tree to change single layer datasource of click on icon to change datasources globally
-version=3.0
+version=3.1
 author=enrico ferreguti
 email=enricofer@gmail.com
 about= The plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table by clicking on toolbar plugin icon. The plugin takes control of bad layers handling allowing to specify valid datasources working on project
@@ -34,6 +34,8 @@ changelog=V1.0
   "Extent doesn't change applying new datasource to a raster layer" issue fixed
   V3.0 2018/08/21
   QGIS3 migration; courtesy of Christoph Franke @ChrFr
+  V3.1 2020/10/15
+  Fix expression evaluation for QGIS 3.x; courtesy of Andrea Giudiceandrea @agiudiceandrea
 # Tags are comma separated with spaces allowed
 tags=database, layers, legend, datasources, sources, bad layers, not found layers
 

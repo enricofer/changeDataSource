@@ -363,6 +363,9 @@ class changeDataSource(object):
         '''
         self.replaceList=[]
         indexes = []
+        context = QgsExpressionContext()
+        scope = QgsExpressionContextScope()
+        context.appendScope(scope)
         #build replace list
         if self.dlg.onlySelectedCheck.isChecked():
             for selectionRange in self.dlg.layerTable.selectedRanges():
@@ -379,8 +382,9 @@ class changeDataSource(object):
             orig = cell.text()
             if self.dlg.mFieldExpressionWidget.isValidExpression():
                 exp = QgsExpression(self.dlg.mFieldExpressionWidget.currentText())
-                exp.prepare(self.layersPropLayer.pendingFields())
-                cell.setText(exp.evaluate(next(self.layersPropLayer.getFeatures(QgsFeatureRequest(row+1)))))
+                scope.setFeature(next(self.layersPropLayer.getFeatures(QgsFeatureRequest(row+1))))
+                expResult = exp.evaluate(context)
+                cell.setText(expResult)
             else:
                 cell.setText(cell.text().replace(self.dlg.findEdit.text(),self.dlg.replaceEdit.text()))
             if self.dlg.datasourceCombo.currentText() != "":

@@ -255,7 +255,7 @@ class changeDataSource(object):
         self.dlg.layerTable.setHorizontalHeaderItem(3,QTableWidgetItem("Data source"))
         self.dlg.layerTable.setHorizontalHeaderItem(4,QTableWidgetItem(""))
 
-        layersPropLayerDef = "Point?crs=epsg:3857&field=layerid:string(200)&field=layername:string(200)&field=layertype:string(20)&field=geometrytype:string(20)&field=provider:string(20)&field=datasource:string(250)&field=authid:string(20)"
+        layersPropLayerDef = "Point?crs=epsg:3857&field=layerid:string(200)&field=layername:string(200)&field=layertype:string(20)&field=geometrytype:string(20)&field=provider:string(20)&field=datasource:string(1500)&field=authid:string(20)"
         self.layersPropLayer = QgsVectorLayer(layersPropLayerDef,"layerTable","memory")
         dummyFeatures = []
 

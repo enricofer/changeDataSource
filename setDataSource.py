@@ -24,17 +24,16 @@ from __future__ import absolute_import
 
 from builtins import str
 from builtins import range
-from qgis.core import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qgis.PyQt import QtCore, QtGui, QtWidgets
-from PyQt5.QtXml import *
-from .ui_changeDSDialog import Ui_changeDataSourceDialog
+from qgis.core import QgsProject, QgsMapLayer, QgsVectorLayer, QgsRasterLayer, Qgis, QgsReadWriteContext
+from qgis.PyQt import QtWidgets 
+from qgis.PyQt.QtXml import QDomDocument
 from .changeDataSource_dialog import dataSourceBrowser
+from qgis.PyQt import uic
+from qgis.PyQt.QtGui import QStandardItemModel, QStandardItem
 
-from qgis.gui import QgsManageConnectionsDialog, QgsMessageBar
 import os.path
 
+Ui_changeDataSourceDialog = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'ui_changeDSDialog.ui'))[0]
 
 class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
@@ -59,7 +58,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         type,provider,fileName = dataSourceBrowser.uri()
         enumLayerTypes = ("vector","raster","plugin")
         if type and enumLayerTypes[self.layer.type()] != type:
-            self.iface.messageBar().pushMessage("Error", "Layer type mismatch: %s/%s" % (enumLayerTypes[self.layer.type()],type), level=QgsMessageBar.CRITICAL, duration=4)
+            self.iface.messageBar().pushMessage("Error", "Layer type mismatch: %s/%s" % (enumLayerTypes[self.layer.type()],type), level=Qgis.MessageLevel.Critical, duration=4)
         else:
             if fileName:
                 self.lineEdit.setPlainText(fileName)
@@ -104,7 +103,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         if provider == "ogr" or provider == "gdal":
             source = QgsProject.instance().readPath(source)
 
-        if layer.type() == QgsMapLayer.VectorLayer:
+        if layer.type() == QgsMapLayer.LayerType.VectorLayer:
             self.populateComboBox(self.selectDatasourceCombo,list(self.vectorDSList.keys()),predef = provider)
         else:
             self.populateComboBox(self.selectDatasourceCombo,list(self.rasterDSList.keys()),predef = provider)
@@ -125,8 +124,8 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         '''
         convenience method to rebuild joins if lost
         '''
-        for layer in QgsMapLayerRegistry.mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer:
+        for layer in QgsProject.instance().mapLayers().values():
+            if layer.type() == QgsMapLayer.LayerType.VectorLayer:
                 for joinDef in layer.vectorJoins():
                     if joinDef.joinLayerId == oldLayer.id():
                         newJoinDef = joinDef
@@ -149,7 +148,7 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
         # new layer import
         # fix_print_with_import
         print("applyDataSource", applyLayer.type())
-        if applyLayer.type() == QgsMapLayer.VectorLayer:
+        if applyLayer.type() == QgsMapLayer.LayerType.VectorLayer:
             # fix_print_with_import
             print("vector")
             probeLayer = QgsVectorLayer(newDatasource,"probe", newProvider)
@@ -160,12 +159,12 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             probeLayer = QgsRasterLayer(newDatasource,"probe", newProvider)
             extent = probeLayer.extent()
         if not probeLayer.isValid():
-            self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=Qgis.Critical, duration=4)
+            self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=Qgis.MessageLevel.Critical, duration=4)
             return None
         #print "geometryTypes",probeLayer.geometryType(), applyLayer.geometryType()
 
-        if applyLayer.type() == QgsMapLayer.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
-            self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=Qgis.Critical, duration=4)
+        if applyLayer.type() == QgsMapLayer.LayerType.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
+            self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=Qgis.MessageLevel.Critical, duration=4)
             return None
 
         newDatasource = probeLayer.source()

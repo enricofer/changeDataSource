@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/changeDataSource" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>

@@ -24,17 +24,14 @@ from __future__ import print_function
 from __future__ import absolute_import
 from builtins import range
 from builtins import object
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtXml import *
-from PyQt5.QtWidgets import *
-from qgis.core import *
-# Initialize Qt resources from file resources.py
-from . import resources_rc
+from qgis.PyQt.QtCore import QCoreApplication, Qt, pyqtSignal, QSettings, QTranslator, qVersion
+from qgis.PyQt.QtGui import QIcon, QFontMetrics
+from qgis.PyQt.QtWidgets import QTableWidgetItem, QAction, QDialogButtonBox, QLineEdit, QPushButton, QSizePolicy, QToolButton, QStyle, QHeaderView, QApplication
+from qgis.core import QgsProject, QgsMapLayer, QgsFeature, QgsGeometry, QgsExpressionContext, QgsExpressionContextScope, QgsExpression, QgsFeatureRequest, Qgis, QgsVectorLayer
+
 # Import the code for the dialog
 from .changeDataSource_dialog import changeDataSourceDialog,dataSourceBrowser
-from .setdatasource import setDataSource
-from qgis.gui import QgsMessageBar
+from .setDataSource import setDataSource
 import os.path
 
 
@@ -169,16 +166,16 @@ class changeDataSource(object):
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = os.path.join(self.plugin_dir,"icon.png")
+        icon_path = os.path.join(self.plugin_dir, "icon", "icon.png")
         self.add_action(
             icon_path,
             text=self.tr(u'changeDataSource'),
             callback=self.run,
             parent=self.iface.mainWindow())
-        self.changeDSActionVector = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change vector datasource", self.iface )
-        self.changeDSActionRaster = QAction(QIcon(os.path.join(self.plugin_dir,"icon.png")), u"Change raster datasource", self.iface )
-        self.iface.addCustomActionForLayerType(self.changeDSActionVector,"", QgsMapLayer.VectorLayer,True)
-        self.iface.addCustomActionForLayerType(self.changeDSActionRaster,"", QgsMapLayer.RasterLayer,True)
+        self.changeDSActionVector = QAction(QIcon(os.path.join(self.plugin_dir, "icon", "icon.png")), u"Change vector datasource", self.iface )
+        self.changeDSActionRaster = QAction(QIcon(os.path.join(self.plugin_dir, "icon", "icon.png")), u"Change raster datasource", self.iface )
+        self.iface.addCustomActionForLayerType(self.changeDSActionVector,"", QgsMapLayer.LayerType.VectorLayer,True)
+        self.iface.addCustomActionForLayerType(self.changeDSActionRaster,"", QgsMapLayer.LayerType.RasterLayer,True)
         self.changeDSTool = setDataSource(self, )
         self.browserDialog = dataSourceBrowser()
         self.dlg.handleBadLayersCheckbox.hide()
@@ -192,9 +189,9 @@ class changeDataSource(object):
         self.changeDSActionRaster.triggered.connect(self.changeLayerDS)
         self.dlg.replaceButton.clicked.connect(self.replaceDS)
         self.dlg.layerTable.verticalHeader().sectionClicked.connect(self.activateSelection)
-        self.dlg.buttonBox.button(QDialogButtonBox.Reset).clicked.connect(lambda: self.buttonBoxHub("Reset"))
-        self.dlg.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(lambda: self.buttonBoxHub("Apply"))
-        self.dlg.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(lambda: self.buttonBoxHub("Cancel"))
+        self.dlg.buttonBox.button(QDialogButtonBox.StandardButton.Reset).clicked.connect(lambda: self.buttonBoxHub("Reset"))
+        self.dlg.buttonBox.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(lambda: self.buttonBoxHub("Apply"))
+        self.dlg.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).clicked.connect(lambda: self.buttonBoxHub("Cancel"))
         #self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
         self.dlg.closedDialog.connect(self.removeServiceLayers)
         #self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
@@ -259,7 +256,7 @@ class changeDataSource(object):
         self.layersPropLayer = QgsVectorLayer(layersPropLayerDef,"layerTable","memory")
         dummyFeatures = []
 
-        self.dlg.layerTable.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+        self.dlg.layerTable.horizontalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignLeft)
 
         self.dlg.layerTable.horizontalHeader().setSectionsClickable(False)
 
@@ -269,7 +266,7 @@ class changeDataSource(object):
         lr = QgsProject.instance()
 
         for layer in lr.mapLayers().values():
-            if layer.type() == QgsMapLayer.VectorLayer or layer.type() == QgsMapLayer.RasterLayer:
+            if layer.type() == QgsMapLayer.LayerType.VectorLayer or layer.type() == QgsMapLayer.LayerType.RasterLayer:
                 provider = layer.dataProvider().name()
                 source = layer.source()
                 cellStyle = ""
@@ -283,7 +280,7 @@ class changeDataSource(object):
                     self.dlg.layerTable.setCellWidget(lastRow,4,self.getButtonWidget(lastRow))
 
                     layerDummyFeature = QgsFeature(self.layersPropLayer.fields())
-                    if layer.type() == QgsMapLayer.VectorLayer:
+                    if layer.type() == QgsMapLayer.LayerType.VectorLayer:
                         type = "vector"
                         enumGeometryTypes =('Point','Line','Polygon','UnknownGeometry','NoGeometry')
                         geometry = enumGeometryTypes[layer.geometryType()]
@@ -300,14 +297,14 @@ class changeDataSource(object):
         QgsProject.instance().layerTreeRoot().findLayer(self.layersPropLayer.id()).setItemVisibilityChecked(False)
         self.dlg.mFieldExpressionWidget.setLayer(self.layersPropLayer)
         self.dlg.layerTable.resizeColumnToContents(1)
-        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(2,QHeaderView.ResizeToContents)
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(2,QHeaderView.ResizeMode.ResizeToContents)
         self.dlg.layerTable.setColumnWidth(4,30)
         self.dlg.layerTable.setShowGrid(False)
-        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(3,QHeaderView.Stretch) # was QHeaderView.Stretch
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(3,QHeaderView.ResizeMode.Stretch) # was QHeaderView.Stretch
 
     def getButtonWidget(self,row):
         edit = QPushButton("...",parent = self.dlg.layerTable)
-        edit.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
+        edit.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Ignored)
         edit.clicked.connect(lambda: self.browseAction(row))
         return edit
 
@@ -322,7 +319,7 @@ class changeDataSource(object):
         rowLayer = QgsProject.instance().mapLayer(layerId)
         enumLayerTypes = ("vector","raster","plugin")
         if newType and enumLayerTypes[rowLayer.type()] != newType:
-            self.iface.messageBar().pushMessage("Error", "Layer type mismatch %s/%s" % (enumLayerTypes[rowLayer.type()], newType), level=QgsMessageBar.CRITICAL, duration=4)
+            self.iface.messageBar().pushMessage("Error", "Layer type mismatch %s/%s" % (enumLayerTypes[rowLayer.type()], newType), level=Qgis.MessageLevel.Critical, duration=4)
             return None
         if newDatasource:
             self.dlg.layerTable.cellWidget(row,3).setText(newDatasource)
@@ -334,12 +331,12 @@ class changeDataSource(object):
         method that returns a preformatted qlineedit widget
         '''
         edit = QLineEdit(parent = self.dlg.layerTable)
-        idealWidth = QApplication.instance().fontMetrics().width(txt)
+        idealWidth = QFontMetrics(QApplication.font()).horizontalAdvance(txt)
         edit.setMinimumWidth(idealWidth)
         if column == 2:
             edit.setMaximumWidth(60)
         edit.setText(txt)
-        edit.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Ignored)
+        edit.setSizePolicy(QSizePolicy.Policy.Minimum,QSizePolicy.Policy.Ignored)
         if style:
             edit.setStyleSheet(style)
         else:
@@ -377,9 +374,7 @@ class changeDataSource(object):
                 indexes.append(row)
                 self.replaceList.append(QgsProject.instance().mapLayer(self.dlg.layerTable.cellWidget(row,0).text()))
         for row in indexes:
-            layerId = self.dlg.layerTable.cellWidget(row,0)
             cell = self.dlg.layerTable.cellWidget(row,3)
-            orig = cell.text()
             if self.dlg.mFieldExpressionWidget.isValidExpression():
                 exp = QgsExpression(self.dlg.mFieldExpressionWidget.currentText())
                 scope.setFeature(next(self.layersPropLayer.getFeatures(QgsFeatureRequest(row+1))))
@@ -399,7 +394,6 @@ class changeDataSource(object):
             rowProviderCell = self.dlg.layerTable.cellWidget(row,2)
             rowDatasourceCell = self.dlg.layerTable.cellWidget(row,3)
             rowLayerID = self.dlg.layerTable.cellWidget(row,0).text()
-            rowLayerName = self.dlg.layerTable.cellWidget(row,1).text()
             rowProvider = rowProviderCell.text()
             rowDatasource = rowDatasourceCell.text()
             rowLayer = QgsProject.instance().mapLayer(rowLayerID)
@@ -462,7 +456,7 @@ class changeDataSource(object):
             self.dlg.raise_()
             self.dlg.activateWindow()
             # Run the dialog event loop
-            result = self.dlg.exec_()
+            result = self.dlg.exec()
             # See if OK was pressed
             if result:
                 # Do something useful here - delete the line containing pass and
@@ -484,10 +478,10 @@ class browseLineEdit(QLineEdit):
         self.button = QToolButton(self)
         self.button.setIcon(QIcon(os.path.join(os.path.dirname(__file__),"BrowseButton.png")))
         self.button.setStyleSheet('border: 0px; padding: 0px;')
-        self.button.setCursor(Qt.ArrowCursor)
+        self.button.setCursor(Qt.CursorShape.ArrowCursor)
         self.button.clicked.connect(self.buttonClicked.emit)
 
-        frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        frameWidth = self.style().pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
         buttonSize = self.button.sizeHint()
 
         self.setStyleSheet('QLineEdit {padding-left: %dpx; }' % (buttonSize.width() + frameWidth + 1))
@@ -496,7 +490,7 @@ class browseLineEdit(QLineEdit):
 
     def resizeEvent(self, event):
         buttonSize = self.button.sizeHint()
-        frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        frameWidth = self.style().pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
         self.button.move(self.rect().right() - frameWidth - buttonSize.width(),
                          (self.rect().bottom() - buttonSize.height() + 1)/2)
         super(browseLineEdit, self).resizeEvent(event)

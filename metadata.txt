@@ -8,12 +8,13 @@
 
 [general]
 name=changeDataSource
-qgisMinimumVersion=3.0
+qgisMinimumVersion=4.0
 description=Right click on layer tree to change single layer datasource of click on icon to change datasources globally
 version=3.1
 author=enrico ferreguti
 email=enricofer@gmail.com
 about= The plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table by clicking on toolbar plugin icon. The plugin takes control of bad layers handling allowing to specify valid datasources working on project
+supportsQt6=true
 
 # End of mandatory metadata
 
@@ -43,7 +44,7 @@ homepage=https://geogear.wordpress.com/2016/01/29/changedatasourceplugin-plugin-
 tracker= https://github.com/enricofer/changeDataSource/issues
 repository= https://github.com/enricofer/changeDataSource
 category=Plugins
-icon=icon.png
+icon=icon/icon.png
 # experimental flag
 experimental=False
 

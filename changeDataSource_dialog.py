@@ -24,11 +24,12 @@ from __future__ import absolute_import
 
 import os
 
-from qgis.PyQt import QtGui, uic, QtWidgets
+from qgis.PyQt import uic, QtWidgets
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.core import QgsBrowserModel, QgsMimeDataUtils
-from .changeDataSource_dialog_base import Ui_changeDataSourceDialogBase
-from .browsedatasource import Ui_dataSourceBrowser
+
+Ui_changeDataSourceDialogBase = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'changeDataSource_dialog_base.ui'))[0]
+Ui_dataSourceBrowser = uic.loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'browsedatasource.ui'))[0]
 
 class changeDataSourceDialog(QtWidgets.QDialog, Ui_changeDataSourceDialogBase):
 
@@ -71,7 +72,6 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
         self.acceptedFlag = None
 
     def getUriFromBrowser(self,index):
-        uriItem = self.browserModel.dataItem(index)
         uri_list = QgsMimeDataUtils.decodeUriList(self.browserModel.mimeData([index]))
         try:
             #print uri_list[0].providerKey,uri_list[0].uri
@@ -95,7 +95,6 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
     def uri(title=""):
         dialog = dataSourceBrowser()
         dialog.setWindowTitle(title)
-        result = dialog.exec_()
         dialog.show()
         if dialog.acceptedFlag:
             return (dialog.result)

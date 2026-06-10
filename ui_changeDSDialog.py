@@ -1,62 +1,47 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Z:\dev\changeDataSource\ui_changeDSDialog.ui'
-#
-# Created: Tue Sep 29 13:40:52 2015
-#      by: PyQt4 UI code generator 4.11.3
-#
-# WARNING! All changes made in this file will be lost!
+# Form implementation generated from reading ui file 'ui_changeDSDialog.ui'
+# Hand-updated for Qt5/Qt6 dual compatibility (qualified enums).
 
-from builtins import object
-from qgis.PyQt import QtCore, QtGui, QtWidgets
+from qgis.PyQt import QtCore, QtWidgets
 
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
-
-try:
-    _encoding = QtWidgets.QApplication.UnicodeUTF8
-    def _translate(context, text, disambig):
-        return QtWidgets.QApplication.translate(context, text, disambig, _encoding)
-except AttributeError:
-    def _translate(context, text, disambig):
-        return QtWidgets.QApplication.translate(context, text, disambig)
 
 class Ui_changeDataSourceDialog(object):
     def setupUi(self, changeDataSourceDialog):
-        changeDataSourceDialog.setObjectName(_fromUtf8("changeDataSourceDialog"))
+        changeDataSourceDialog.setObjectName("changeDataSourceDialog")
         changeDataSourceDialog.resize(297, 305)
         self.verticalLayout = QtWidgets.QVBoxLayout(changeDataSourceDialog)
-        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
+        self.verticalLayout.setObjectName("verticalLayout")
         self.label_2 = QtWidgets.QLabel(changeDataSourceDialog)
-        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.label_2.setObjectName("label_2")
         self.verticalLayout.addWidget(self.label_2)
         self.selectDatasourceCombo = QtWidgets.QComboBox(changeDataSourceDialog)
-        self.selectDatasourceCombo.setObjectName(_fromUtf8("selectDatasourceCombo"))
+        self.selectDatasourceCombo.setObjectName("selectDatasourceCombo")
         self.verticalLayout.addWidget(self.selectDatasourceCombo)
         self.label = QtWidgets.QLabel(changeDataSourceDialog)
-        self.label.setObjectName(_fromUtf8("label"))
+        self.label.setObjectName("label")
         self.verticalLayout.addWidget(self.label)
         self.lineEdit = QtWidgets.QPlainTextEdit(changeDataSourceDialog)
-        self.lineEdit.setObjectName(_fromUtf8("lineEdit"))
+        self.lineEdit.setObjectName("lineEdit")
         self.verticalLayout.addWidget(self.lineEdit)
         self.openBrowser = QtWidgets.QPushButton(changeDataSourceDialog)
-        self.openBrowser.setObjectName(_fromUtf8("openBrowser"))
+        self.openBrowser.setObjectName("openBrowser")
         self.verticalLayout.addWidget(self.openBrowser)
         self.buttonBox = QtWidgets.QDialogButtonBox(changeDataSourceDialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
-        self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
+        self.buttonBox.setOrientation(QtCore.Qt.Orientation.Horizontal)
+        self.buttonBox.setStandardButtons(
+            QtWidgets.QDialogButtonBox.StandardButton.Cancel
+            | QtWidgets.QDialogButtonBox.StandardButton.Ok
+        )
+        self.buttonBox.setObjectName("buttonBox")
         self.verticalLayout.addWidget(self.buttonBox)
 
         self.retranslateUi(changeDataSourceDialog)
         QtCore.QMetaObject.connectSlotsByName(changeDataSourceDialog)
 
     def retranslateUi(self, changeDataSourceDialog):
-        changeDataSourceDialog.setWindowTitle(_translate("changeDataSourceDialog", "undoLayerChanges", None))
-        self.label_2.setText(_translate("changeDataSourceDialog", "Datasource Types", None))
-        self.label.setText(_translate("changeDataSourceDialog", "URI:", None))
-        self.openBrowser.setText(_translate("changeDataSourceDialog", "Browse", None))
-
+        _translate = QtCore.QCoreApplication.translate
+        changeDataSourceDialog.setWindowTitle(_translate("changeDataSourceDialog", "undoLayerChanges"))
+        self.label_2.setText(_translate("changeDataSourceDialog", "Datasource Types"))
+        self.label.setText(_translate("changeDataSourceDialog", "URI:"))
+        self.openBrowser.setText(_translate("changeDataSourceDialog", "Browse"))

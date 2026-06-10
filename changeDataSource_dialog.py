@@ -20,45 +20,32 @@
  *                                                                         *
  ***************************************************************************/
 """
-from __future__ import absolute_import
-
-import os
-
-from qgis.PyQt import QtGui, uic, QtWidgets
+from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.core import QgsBrowserModel, QgsMimeDataUtils
+
 from .changeDataSource_dialog_base import Ui_changeDataSourceDialogBase
 from .browsedatasource import Ui_dataSourceBrowser
 
+
 class changeDataSourceDialog(QtWidgets.QDialog, Ui_changeDataSourceDialogBase):
+
+    closedDialog = pyqtSignal()
 
     def __init__(self, parent=None):
         """Constructor."""
         super(changeDataSourceDialog, self).__init__(parent)
-        #QtWidgets.QDialog.__init__(self)
-        # Set up the user interface from Designer.
-        # After setupUI you can access any designer object by doing
-        # self.<objectname>, and you can use autoconnect slots - see
-        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
-    closedDialog = pyqtSignal()
-
-    def closeEvent(self,evnt):
+    def closeEvent(self, evnt):
         self.closedDialog.emit()
+
 
 class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
 
     def __init__(self, parent=None):
         """Constructor."""
         super(dataSourceBrowser, self).__init__(parent)
-        #QtWidgets.QDialog.__init__(self)
-        # Set up the user interface from Designer.
-        # After setupUI you can access any designer object by doing
-        # self.<objectname>, and you can use autoconnect slots - see
-        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         self.browserModel = QgsBrowserModel()
         self.browserModel.initialize()
@@ -69,18 +56,19 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
         self.buttonBox.accepted.connect(self.acceptedAction)
         self.buttonBox.rejected.connect(self.rejectedAction)
         self.acceptedFlag = None
+        self.result = (None, None, None)
 
-    def getUriFromBrowser(self,index):
-        uriItem = self.browserModel.dataItem(index)
+    def getUriFromBrowser(self, index):
         uri_list = QgsMimeDataUtils.decodeUriList(self.browserModel.mimeData([index]))
+        if not uri_list:
+            self.result = (None, None, None)
+            return
         try:
-            #print uri_list[0].providerKey,uri_list[0].uri
-            self.result =  (uri_list[0].layerType,uri_list[0].providerKey,uri_list[0].uri)
+            self.result = (uri_list[0].layerType, uri_list[0].providerKey, uri_list[0].uri)
             self.close()
             self.acceptedFlag = True
-        except:
-            #print "NO VALID URI"
-            self.result = (None,None,None)
+        except (AttributeError, IndexError):
+            self.result = (None, None, None)
 
     def acceptedAction(self):
         self.getUriFromBrowser(self.dataSourceTree.currentIndex())
@@ -95,9 +83,9 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
     def uri(title=""):
         dialog = dataSourceBrowser()
         dialog.setWindowTitle(title)
-        result = dialog.exec_()
+        dialog.exec()
         dialog.show()
         if dialog.acceptedFlag:
-            return (dialog.result)
+            return dialog.result
         else:
-            return (None,None,None)
+            return (None, None, None)

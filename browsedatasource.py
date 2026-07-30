@@ -28,6 +28,8 @@ class Ui_dataSourceBrowser(object):
     def setupUi(self, dataSourceBrowser):
         dataSourceBrowser.setObjectName(_fromUtf8("dataSourceBrowser"))
         dataSourceBrowser.resize(400, 444)
+        self.verticalLayout = QtWidgets.QVBoxLayout(dataSourceBrowser)
+        self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.buttonBox = QtWidgets.QDialogButtonBox(dataSourceBrowser)
         self.buttonBox.setGeometry(QtCore.QRect(50, 400, 341, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -36,6 +38,8 @@ class Ui_dataSourceBrowser(object):
         self.dataSourceTree = QtWidgets.QTreeView(dataSourceBrowser)
         self.dataSourceTree.setGeometry(QtCore.QRect(10, 11, 381, 381))
         self.dataSourceTree.setObjectName(_fromUtf8("dataSourceTree"))
+        self.verticalLayout.addWidget(self.dataSourceTree)
+        self.verticalLayout.addWidget(self.buttonBox)
 
         self.retranslateUi(dataSourceBrowser)
         self.buttonBox.accepted.connect(dataSourceBrowser.accept)

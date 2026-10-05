@@ -24,11 +24,12 @@ from __future__ import print_function
 from __future__ import absolute_import
 from builtins import range
 from builtins import object
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtXml import *
-from PyQt5.QtWidgets import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
+from qgis.PyQt.QtXml import *
+from qgis.PyQt.QtWidgets import *
 from qgis.core import *
+from .qt_compat import ALIGN_LEFT, BUTTONBOX_APPLY, BUTTONBOX_CANCEL, BUTTONBOX_RESET, CURSOR_ARROW, HEADER_RESIZE_TO_CONTENTS, HEADER_STRETCH, SIZEPOLICY_IGNORED, SIZEPOLICY_MINIMUM
 # Initialize Qt resources from file resources.py
 from . import resources_rc
 # Import the code for the dialog
@@ -192,9 +193,9 @@ class changeDataSource(object):
         self.changeDSActionRaster.triggered.connect(self.changeLayerDS)
         self.dlg.replaceButton.clicked.connect(self.replaceDS)
         self.dlg.layerTable.verticalHeader().sectionClicked.connect(self.activateSelection)
-        self.dlg.buttonBox.button(QDialogButtonBox.Reset).clicked.connect(lambda: self.buttonBoxHub("Reset"))
-        self.dlg.buttonBox.button(QDialogButtonBox.Apply).clicked.connect(lambda: self.buttonBoxHub("Apply"))
-        self.dlg.buttonBox.button(QDialogButtonBox.Cancel).clicked.connect(lambda: self.buttonBoxHub("Cancel"))
+        self.dlg.buttonBox.button(BUTTONBOX_RESET).clicked.connect(lambda: self.buttonBoxHub("Reset"))
+        self.dlg.buttonBox.button(BUTTONBOX_APPLY).clicked.connect(lambda: self.buttonBoxHub("Apply"))
+        self.dlg.buttonBox.button(BUTTONBOX_CANCEL).clicked.connect(lambda: self.buttonBoxHub("Cancel"))
         #self.dlg.reconcileButton.clicked.connect(self.reconcileUnhandled)
         self.dlg.closedDialog.connect(self.removeServiceLayers)
         #self.dlg.handleBadLayersCheckbox.stateChanged.connect(self.handleBadLayerOption)
@@ -259,7 +260,7 @@ class changeDataSource(object):
         self.layersPropLayer = QgsVectorLayer(layersPropLayerDef,"layerTable","memory")
         dummyFeatures = []
 
-        self.dlg.layerTable.horizontalHeader().setDefaultAlignment(Qt.AlignLeft)
+        self.dlg.layerTable.horizontalHeader().setDefaultAlignment(ALIGN_LEFT)
 
         self.dlg.layerTable.horizontalHeader().setSectionsClickable(False)
 
@@ -300,14 +301,14 @@ class changeDataSource(object):
         QgsProject.instance().layerTreeRoot().findLayer(self.layersPropLayer.id()).setItemVisibilityChecked(False)
         self.dlg.mFieldExpressionWidget.setLayer(self.layersPropLayer)
         self.dlg.layerTable.resizeColumnToContents(1)
-        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(2,QHeaderView.ResizeToContents)
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(2,HEADER_RESIZE_TO_CONTENTS)
         self.dlg.layerTable.setColumnWidth(4,30)
         self.dlg.layerTable.setShowGrid(False)
-        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(3,QHeaderView.Stretch) # was QHeaderView.Stretch
+        self.dlg.layerTable.horizontalHeader().setSectionResizeMode(3,HEADER_STRETCH) # was QHeaderView.Stretch
 
     def getButtonWidget(self,row):
         edit = QPushButton("...",parent = self.dlg.layerTable)
-        edit.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
+        edit.setSizePolicy(SIZEPOLICY_IGNORED,SIZEPOLICY_IGNORED)
         edit.clicked.connect(lambda: self.browseAction(row))
         return edit
 
@@ -334,12 +335,13 @@ class changeDataSource(object):
         method that returns a preformatted qlineedit widget
         '''
         edit = QLineEdit(parent = self.dlg.layerTable)
-        idealWidth = QApplication.instance().fontMetrics().width(txt)
+        fm = QFontMetrics(QApplication.instance().font())
+        idealWidth = fm.horizontalAdvance(txt)
         edit.setMinimumWidth(idealWidth)
         if column == 2:
             edit.setMaximumWidth(60)
         edit.setText(txt)
-        edit.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Ignored)
+        edit.setSizePolicy(SIZEPOLICY_MINIMUM,SIZEPOLICY_IGNORED)
         if style:
             edit.setStyleSheet(style)
         else:
@@ -462,7 +464,7 @@ class changeDataSource(object):
             self.dlg.raise_()
             self.dlg.activateWindow()
             # Run the dialog event loop
-            result = self.dlg.exec_()
+            result = self.dlg.exec()
             # See if OK was pressed
             if result:
                 # Do something useful here - delete the line containing pass and
@@ -484,7 +486,7 @@ class browseLineEdit(QLineEdit):
         self.button = QToolButton(self)
         self.button.setIcon(QIcon(os.path.join(os.path.dirname(__file__),"BrowseButton.png")))
         self.button.setStyleSheet('border: 0px; padding: 0px;')
-        self.button.setCursor(Qt.ArrowCursor)
+        self.button.setCursor(CURSOR_ARROW)
         self.button.clicked.connect(self.buttonClicked.emit)
 
         frameWidth = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)

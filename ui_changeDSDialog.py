@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .qt_compat import BUTTONBOX_CANCEL, BUTTONBOX_OK, ORIENTATION_HORIZONTAL
 # Form implementation generated from reading ui file 'Z:\dev\changeDataSource\ui_changeDSDialog.ui'
 #
 # Created: Tue Sep 29 13:40:52 2015
@@ -46,8 +47,8 @@ class Ui_changeDataSourceDialog(object):
         self.openBrowser.setObjectName(_fromUtf8("openBrowser"))
         self.verticalLayout.addWidget(self.openBrowser)
         self.buttonBox = QtWidgets.QDialogButtonBox(changeDataSourceDialog)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setOrientation(ORIENTATION_HORIZONTAL)
+        self.buttonBox.setStandardButtons(BUTTONBOX_CANCEL|BUTTONBOX_OK)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.verticalLayout.addWidget(self.buttonBox)
 
@@ -59,4 +60,3 @@ class Ui_changeDataSourceDialog(object):
         self.label_2.setText(_translate("changeDataSourceDialog", "Datasource Types", None))
         self.label.setText(_translate("changeDataSourceDialog", "URI:", None))
         self.openBrowser.setText(_translate("changeDataSourceDialog", "Browse", None))
-

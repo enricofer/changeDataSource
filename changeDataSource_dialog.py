@@ -95,7 +95,7 @@ class dataSourceBrowser(QtWidgets.QDialog, Ui_dataSourceBrowser):
     def uri(title=""):
         dialog = dataSourceBrowser()
         dialog.setWindowTitle(title)
-        result = dialog.exec_()
+        result = dialog.exec()
         dialog.show()
         if dialog.acceptedFlag:
             return (dialog.result)

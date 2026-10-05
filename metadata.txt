@@ -9,8 +9,10 @@
 [general]
 name=changeDataSource
 qgisMinimumVersion=3.0
+qgisMaximumVersion = 4.99
+supportsQt6 = True
 description=Right click on layer tree to change single layer datasource of click on icon to change datasources globally
-version=3.1
+version = 3.1.1
 author=enrico ferreguti
 email=enricofer@gmail.com
 about= The plugin allows to change the datasources of the loaded layers. The operation can be performed right clicking on legend items for single layer or globally on a summary table by clicking on toolbar plugin icon. The plugin takes control of bad layers handling allowing to specify valid datasources working on project
@@ -20,7 +22,8 @@ about= The plugin allows to change the datasources of the loaded layers. The ope
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=V1.0
+changelog = 3.1.1 : Common Qgis3/Qgis4 compatibility thanks to "scan_qt6_compat" plugin + manual modifications by Marcin Sołoguba (https://github.com/czalaviek; https://www.linkedin.com/in/marcin-sologuba/)
+  V1.0
   Release
   V2.0 2016/01/29
   Datasource browsing feature, Bad layers Handling
@@ -36,6 +39,9 @@ changelog=V1.0
   QGIS3 migration; courtesy of Christoph Franke @ChrFr
   V3.1 2020/10/15
   Fix expression evaluation for QGIS 3.x; courtesy of Andrea Giudiceandrea @agiudiceandrea
+  V3.1.1 2026/10/05
+  Common Qgis3/Qgis4 compatibility thanks to "scan_qt6_compat" plugin + manual modifications by Marcin Sołoguba (https://github.com/czalaviek; https://www.linkedin.com/in/marcin-sologuba/)
+  
 # Tags are comma separated with spaces allowed
 tags=database, layers, legend, datasources, sources, bad layers, not found layers
 

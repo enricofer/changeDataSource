@@ -25,10 +25,10 @@ from __future__ import absolute_import
 from builtins import str
 from builtins import range
 from qgis.core import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
 from qgis.PyQt import QtCore, QtGui, QtWidgets
-from PyQt5.QtXml import *
+from qgis.PyQt.QtXml import *
 from .ui_changeDSDialog import Ui_changeDataSourceDialog
 from .changeDataSource_dialog import dataSourceBrowser
 
@@ -36,6 +36,7 @@ from qgis.gui import QgsManageConnectionsDialog, QgsMessageBar
 import os.path
 
 
+from .qt_compat import scoped_enum
 class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
 
     def __init__(self,parent):
@@ -160,12 +161,12 @@ class setDataSource(QtWidgets.QDialog, Ui_changeDataSourceDialog):
             probeLayer = QgsRasterLayer(newDatasource,"probe", newProvider)
             extent = probeLayer.extent()
         if not probeLayer.isValid():
-            self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=Qgis.Critical, duration=4)
+            self.iface.messageBar().pushMessage("Error", "New data source is not valid: "+newProvider+"|"+newDatasource, level=scoped_enum(Qgis, "MessageLevel", "Critical"), duration=4)
             return None
         #print "geometryTypes",probeLayer.geometryType(), applyLayer.geometryType()
 
         if applyLayer.type() == QgsMapLayer.VectorLayer and probeLayer.geometryType() != applyLayer.geometryType():
-            self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=Qgis.Critical, duration=4)
+            self.iface.messageBar().pushMessage("Error", "Geometry type mismatch", level=scoped_enum(Qgis, "MessageLevel", "Critical"), duration=4)
             return None
 
         newDatasource = probeLayer.source()

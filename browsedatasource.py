@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .qt_compat import BUTTONBOX_CANCEL, BUTTONBOX_OK, ORIENTATION_HORIZONTAL
 # Form implementation generated from reading ui file 'C:\Users\DEMO\Dropbox\dev\changeDataSource\browsedatasource.ui'
 #
 # Created: Wed Nov 04 23:39:53 2015
@@ -30,8 +31,8 @@ class Ui_dataSourceBrowser(object):
         dataSourceBrowser.resize(400, 444)
         self.buttonBox = QtWidgets.QDialogButtonBox(dataSourceBrowser)
         self.buttonBox.setGeometry(QtCore.QRect(50, 400, 341, 32))
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.buttonBox.setOrientation(ORIENTATION_HORIZONTAL)
+        self.buttonBox.setStandardButtons(BUTTONBOX_CANCEL|BUTTONBOX_OK)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.dataSourceTree = QtWidgets.QTreeView(dataSourceBrowser)
         self.dataSourceTree.setGeometry(QtCore.QRect(10, 11, 381, 381))
@@ -43,4 +44,3 @@ class Ui_dataSourceBrowser(object):
 
     def retranslateUi(self, dataSourceBrowser):
         dataSourceBrowser.setWindowTitle(_translate("dataSourceBrowser", "Dialog", None))
-

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .qt_compat import BUTTONBOX_APPLY, BUTTONBOX_CANCEL, BUTTONBOX_RESET, EXTENDED_SELECTION, ORIENTATION_HORIZONTAL, PEN_DOT_LINE, SELECT_ROWS, SIZEPOLICY_EXPANDING, SIZEPOLICY_FIXED, SIZEPOLICY_MINIMUM
 # Form implementation generated from reading ui file 'C:\Users\DEMO\Dropbox\dev\changeDataSource\changeDataSource_dialog_base.ui'
 #
 # Created: Sun Nov 22 22:12:30 2015
@@ -32,9 +33,9 @@ class Ui_changeDataSourceDialogBase(object):
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.layerTable = QtWidgets.QTableWidget(changeDataSourceDialogBase)
         self.layerTable.setAlternatingRowColors(True)
-        self.layerTable.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.layerTable.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.layerTable.setGridStyle(QtCore.Qt.DotLine)
+        self.layerTable.setSelectionMode(EXTENDED_SELECTION)
+        self.layerTable.setSelectionBehavior(SELECT_ROWS)
+        self.layerTable.setGridStyle(PEN_DOT_LINE)
         self.layerTable.setObjectName(_fromUtf8("layerTable"))
         self.layerTable.setColumnCount(0)
         self.layerTable.setRowCount(0)
@@ -79,7 +80,7 @@ class Ui_changeDataSourceDialogBase(object):
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(40, 20, SIZEPOLICY_EXPANDING, SIZEPOLICY_MINIMUM)
         self.horizontalLayout_2.addItem(spacerItem)
         self.handleBadLayersCheckbox = QtWidgets.QCheckBox(changeDataSourceDialogBase)
         self.handleBadLayersCheckbox.setObjectName(_fromUtf8("handleBadLayersCheckbox"))
@@ -88,13 +89,13 @@ class Ui_changeDataSourceDialogBase(object):
         self.reconcileButton.setObjectName(_fromUtf8("reconcileButton"))
         self.horizontalLayout_2.addWidget(self.reconcileButton)
         self.buttonBox = QtWidgets.QDialogButtonBox(changeDataSourceDialogBase)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(SIZEPOLICY_FIXED, SIZEPOLICY_FIXED)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.buttonBox.sizePolicy().hasHeightForWidth())
         self.buttonBox.setSizePolicy(sizePolicy)
-        self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Apply|QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Reset)
+        self.buttonBox.setOrientation(ORIENTATION_HORIZONTAL)
+        self.buttonBox.setStandardButtons(BUTTONBOX_APPLY|BUTTONBOX_CANCEL|BUTTONBOX_RESET)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         self.horizontalLayout_2.addWidget(self.buttonBox)
         self.verticalLayout.addLayout(self.horizontalLayout_2)

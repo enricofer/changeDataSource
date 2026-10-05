@@ -1,0 +1,86 @@
+AUDIT REPORT Qt5 → Qt6 / QGIS3 → QGIS4
+====================================================================================================
+
+1. GLOBAL SUMMARY
+----------------------------------------------------------------------------------------------------
+Scanned folder              : C:\Users\marcin.sologuba\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\changeDataSource
+Python files found          : 9
+Modified files              : 1
+Files with fixes            : 1
+Files with findings         : 0
+Automatic replacements      : 2
+Critical findings (ERROR)   : 0
+Warnings (WARNING)          : 0
+
+qt_compat source            : C:\Users\marcin.sologuba\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\scan_qt6_compat\qt_compat.py
+qt_compat destination       : C:\Users\marcin.sologuba\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\changeDataSource\qt_compat.py
+qt_compat status            : copied
+
+2. QT5 → QT6 STATISTICS
+----------------------------------------------------------------------------------------------------
+2.1 Automatic replacements by category
+
+  - repository_enum_Qgis_Critical: 2
+
+2.2 Detailed fixes by applied rule
+
+  - Rewrite enum for QGIS repository Qt6 compliance: 2
+  - Add or merge qt_compat import: 1
+
+3. REMAINING FINDINGS SUMMARY
+----------------------------------------------------------------------------------------------------
+No remaining findings.
+
+4. FILE-BY-FILE AUDIT
+----------------------------------------------------------------------------------------------------
+
+FILE: setdatasource.py
+====================================================================================================
+Applied fixes       : 3
+Findings ERROR      : 0
+Findings WARNING    : 0
+
+4.1 Applied fixes
+
+Line: 1
+Rule: Add or merge qt_compat import
+Before:
+    [imports before merge]
+After:
+    [qt_compat imports added/merged]
+
+Line: 163
+Rule: Rewrite enum for QGIS repository Qt6 compliance
+Before:
+    Qgis.Critical
+After:
+    scoped_enum(Qgis, "MessageLevel", "Critical")
+
+Line: 168
+Rule: Rewrite enum for QGIS repository Qt6 compliance
+Before:
+    Qgis.Critical
+After:
+    scoped_enum(Qgis, "MessageLevel", "Critical")
+
+4.2 Remaining findings
+
+No remaining findings.
+
+
+5. ANNEX - COMPACT REPLACEMENTS SUMMARY
+----------------------------------------------------------------------------------------------------
+
+repository_enum_Qgis_Critical : 2 -> scoped_enum(Qgis, "MessageLevel", "Critical")
+
+
+====================================================================================================
+PLUGIN RELOAD
+====================================================================================================
+Plugin reloaded: changeDataSource
+Python code was reloaded.
+Plugin marked as enabled in QSettings: changeDataSource
+Plugin manager metadata reloaded. Close and reopen the Plugins window if it is already open.
+UI refresh: processEvents OK | Main window refresh OK | Plugin manager interface update failed: 'QgsPluginManagerInterface' object has no attribute 'update'
+If the Plugins window is already open, close and reopen it.
+A QGIS restart may still be required for some fields in the plugin manager.
